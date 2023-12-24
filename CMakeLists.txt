@@ -12,13 +12,17 @@ if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
 endif()
 
 file(GLOB_RECURSE CoreFiles "Core/*")
+file(GLOB_RECURSE RenderFiles "Render/*")
+file(GLOB_RECURSE EditorFiles "Editor/*")
 file(GLOB gladc "Library/glad/src/glad.c")
 
 source_group("Core" FILES ${CoreFiles})
+source_group("Render" FILES ${RenderFiles})
+source_group("Editor" FILES ${EditorFiles})
 
 include_directories(".")
 
-add_executable(VenusEngine Core/main.cpp ${CoreFiles} ${gladc})
+add_executable(VenusEngine main.cpp ${CoreFiles} ${RenderFiles} ${EditorFiles} ${gladc})
 
 target_link_libraries(VenusEngine PUBLIC glfw)
 
