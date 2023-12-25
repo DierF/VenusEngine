@@ -19,7 +19,7 @@ namespace VenusEngine
 
 		~Shader()
 		{
-			glDeleteProgram(m_shaderId);
+			glDeleteShader(m_shaderId);
 		}
 
 		void compile(std::string const& path)

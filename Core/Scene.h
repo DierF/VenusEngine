@@ -1,91 +1,93 @@
 #pragma once
 
-#include <vector>
+#include <unordered_map>
 
-#include "Render/Renderer.h"
-#include "Render/VertexArray.h"
-#include "Render/VertexBuffer.h"
+#include "glm/glm.hpp"
+
+#include "Core/Mesh.h"
 
 namespace VenusEngine
 {
 	class Scene
 	{
 	public:
-		Scene()
-		{
-			// Set up triangle geometry
-			m_vao1.bind();
-			m_vbo1.bind();
-			// 3 2D points, followed by 3 RGB colors
-			std::vector<float> triVertices{
-				0.0f, 0.5f,         // 2-d coordinates of first vertex(X, Y)
-				-0.5f, -0.5f,       // 2-d coordinates of second vertex(X, Y)
-				0.5f, -0.5f,        // 2-d coordinates of third vertex(X, Y)
-				1.0f, 0.0f, 0.0f,   // color of first vertex(R, G, B)
-				0.0f, 1.0f, 0.0f,   // color of second vertex(R, G, B)
-				0.0f, 0.0f, 1.0f    // color of third vertex(R, G, B)
-			};
-			m_vbo1.bufferData(triVertices.size() * sizeof(float), triVertices.data(), GL_STATIC_DRAW);
-			// Tell the shaders how the data in the array is laid out
-			glEnableVertexAttribArray(0);
-			// Positions have 2 parts, each are floats, and start at beginning of array
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0,
-				reinterpret_cast<void*>(0));
-			glEnableVertexAttribArray(1);
-			// Colors have 3 parts, each are floats, and start at 7th position in array
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
-				reinterpret_cast<void*>(6 * sizeof(float)));
-			m_vbo1.unbind();
-			m_vao1.unbind();
-
-			///////////////////////////////////////////////////////////////////
-			// Use a second VAO for point geometry
-			glPointSize(50);
-			m_vao2.bind();
-			m_vbo2.bind();
-			// 1 2D point, followed by 1 RGB color
-			float pointVertices[] = {
-			  0.8f, 0.8f,         // 2-d coordinates of only vertex(X, Y)
-			  1.0f, 0.0f, 1.0f    // color of only vertex(R, G, B)
-			};
-			glBufferData(GL_ARRAY_BUFFER, sizeof(pointVertices), pointVertices,
-				GL_STATIC_DRAW);
-			m_vbo2.bufferData(sizeof(pointVertices), pointVertices, GL_STATIC_DRAW);
-			glEnableVertexAttribArray(0);
-			// Positions have 2 parts, each are floats, and start at beginning of aray
-			glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 0,
-				reinterpret_cast<void*>(0));
-			glEnableVertexAttribArray(1);
-			// Colors have 3 parts, each are floats, and start at 3rd position in array
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0,
-				reinterpret_cast<void*>(2 * sizeof(float)));
-			m_vbo2.unbind();
-			m_vao2.unbind();
-		}
+		Scene() = default;
 
 		~Scene() = default;
 
-		void draw()
+		/// \brief Copy constructor removed because you shouldn't be copying Scenes.
+		Scene(Scene const&) = delete;
+
+		/// \brief Assignment operator removed because you shouldn't be assigning
+		///   Scenes.
+		void operator=(Scene const&) = delete;
+
+		/// \brief Adds a new Mesh to this Scene.
+		/// \param[in] meshName The name of the Mesh.  Unique names should be used so
+		///   that you can access it in the future.
+		/// \param[in] mesh A pointer to the Mesh that should be added.  This Mesh
+		///   must have been dynamically allocated.  The Scene will now own this Mesh
+		///   and be responsible for de-allocating it.
+		/// \pre The Scene does not contain any Mesh associated with meshName.
+		/// \post The Scene contains the mesh, associated with the meshName.
+		void add(std::string const& meshName, std::shared_ptr<Mesh> mesh)
 		{
-			m_renderer.clearBuffer();
-			m_renderer.getShaderProgram().enable();
+			m_meshes[meshName] = mesh;
+		}
 
-			m_vao1.bind();
-			glDrawArrays(GL_TRIANGLES, 0, 3);
-			m_vao1.unbind();
+		/// \brief Removes a Mesh from this Scene.
+		/// \param[in] meshName The name of the Mesh that should be removed.
+		/// \pre This Scene contains a Mesh associated with meshName.
+		/// \post This Scene no longer associates meshName with anything.
+		/// \post The Mesh that had been associated with meshName has been freed.
+		void remove(std::string const& meshName)
+		{
+			m_meshes.erase(meshName);
+		}
 
-			m_vao2.bind();
-			glDrawArrays(GL_POINTS, 0, 1);
-			m_vao2.unbind();
+		/// \brief Removes all Meshes from this Scene.
+		/// \post This Scene is empty.
+		/// \post All Meshes that had been part of this Scene have been freed.
+		void clear()
+		{
+			m_meshes.clear();
+		}
 
-			m_renderer.getShaderProgram().disable();
+		/// \brief Draws all of the elements in this Scene.
+		/// \param[in] shaderProgram The ShaderProgram that should be used for
+		///   drawing.
+		/// \param[in] viewMatrix The view matrix that should be used when drawing
+		///   the Scene.
+		void draw(ShaderProgram& shaderProgram, glm::mat4 const& viewMatrix)
+		{
+			for (auto& pair : m_meshes)
+			{
+				pair.second->draw(shaderProgram, viewMatrix);
+			}
+		}
+
+		/// \brief Tests whether or not this Scene contains a Mesh associated with a
+		///   name.
+		/// \param[in] meshName The name of the requested Mesh.
+		/// \return Whether or not this Scene contains a Mesh associated with
+		///   meshName.
+		bool hasMesh(std::string const& meshName)
+		{
+			return m_meshes.count(meshName);
+		}
+
+		/// \brief Gets the Mesh associated with a name.
+		/// \param[in] meshName The name of the requested Mesh.
+		/// \return A pointer to the Mesh associated with meshName.  This pointer
+		///   should not be permanently stored, as the Mesh it points to will be
+		///   deallocated with this Scene.
+		/// \pre This Scene has a Mesh assocated with meshName.
+		std::shared_ptr<Mesh> getMesh(std::string const& meshName)
+		{
+			return m_meshes[meshName];
 		}
 
 	private:
-		Renderer m_renderer;
-		VertexArray m_vao1;
-		VertexArray m_vao2;
-		VertexBuffer m_vbo1;
-		VertexBuffer m_vbo2;
+		std::unordered_map<std::string, std::shared_ptr<Mesh>> m_meshes;
 	};
 }

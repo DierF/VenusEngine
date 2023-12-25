@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Editor/Window.h"
-#include "Core/Scene.h"
+#include "Core/World.h"
 
 namespace VenusEngine
 {
@@ -16,13 +16,13 @@ namespace VenusEngine
 		{
 			while (!m_window.shouldClose())
 			{
-				m_scene.draw();
+				m_world.draw();
 				m_window.update();
 			}
 		}
 
 	private:
 		Window m_window;
-		Scene  m_scene;
+		World  m_world;
 	};
 }

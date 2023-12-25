@@ -11,8 +11,8 @@ namespace VenusEngine
 	public:
 		Renderer()
 		{
-			m_shaderProgram.createVertexShader("../Render/Vec2.vert");
-			m_shaderProgram.createFragmentShader("../Render/Vec2.frag");
+			m_shaderProgram.createVertexShader("../Render/Vec3.vert");
+			m_shaderProgram.createFragmentShader("../Render/Vec3.frag");
 			m_shaderProgram.link();
 		}
 

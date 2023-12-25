@@ -8,6 +8,9 @@
 #include <memory>
 
 #include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/glm.hpp>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Render/Shader.h"
 
@@ -37,6 +40,17 @@ namespace VenusEngine
 		GLint getAttributeLocation(std::string const& attributeName) const
 		{
 			return glGetAttribLocation(m_programId, attributeName.c_str());
+		}
+
+		GLint getUniformLocation(std::string const& uniformName) const
+		{
+			return glGetUniformLocation(m_programId, uniformName.c_str());
+		}
+
+		void setUniformMatrix(std::string const& uniform, glm::mat4x4 const& value)
+		{
+			GLint location = getUniformLocation(uniform);
+			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
 		}
 
 		void createVertexShader(std::string const& vertexShaderFilename)
