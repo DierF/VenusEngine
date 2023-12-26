@@ -12,23 +12,6 @@ namespace VenusEngine
 	class Camera
 	{
 	public:
-		/// \brief Constructs a new Camera.
-		///
-		/// \param eyePosition The location (in world coordinates) where the camera
-		///   is located.
-		/// \param localBackDirection A vector pointing backwards from the camera.
-		/// \param nearClipPlaneDistance The distance to the closest things the
-		///   camera can "see".
-		/// \param farClipPlaneDistance The distance to the farthest things the
-		///   camera can "see".
-		/// \param aspectRatio The window's width divided by height.
-		/// \param verticalFieldOfViewDegrees The angle determining how much the
-		///   camera "sees".
-		/// \post The camera's pose has been set and a projection matrix generated.
-		/// \post The three orientation vectors are orthonormal with each other.
-		/// \post All of the parameters have been copied into their respective data
-		///   members, and the local right and up have been calculated to be
-		///   orthonormal to the local back.
 		Camera(glm::vec3 const& position,
 			   float yaw,
 			   float pitch,
@@ -47,7 +30,6 @@ namespace VenusEngine
 			updateCameraOrientation();
 		}
 
-		/// \brief Destructs a Camera.
 		~Camera()
 		{
 		}
@@ -129,6 +111,11 @@ namespace VenusEngine
 			shaderProgram.setUniformMatrix("uProjection", getProjectionMatrix());
 
 			shaderProgram.disable();
+		}
+
+		void updateAspectRatio(float aspectRatio)
+		{
+			m_aspectRatio = aspectRatio;
 		}
 
 	private:

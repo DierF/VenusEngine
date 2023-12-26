@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Editor/Window.h"
 #include "Core/Scene.h"
 #include "Core/Camera.h"
 #include "Core/Controller.h"
@@ -107,6 +108,7 @@ namespace VenusEngine
 		{
 			m_controller.moveCamera(m_camera, deltaTime * 0.01f);
 			m_controller.turnCamera(m_camera);
+            m_camera.updateAspectRatio(static_cast<float>(Window::get().getWidth()) / Window::get().getHeight());
 		}
 
 		void draw()
