@@ -4,6 +4,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 
+#include "Render/ShaderProgram.h"
+
 namespace VenusEngine
 {
 	/// \brief An eye that is viewing the scene.
@@ -82,6 +84,15 @@ namespace VenusEngine
 			m_position += m_frontDirection * distance;
 		}
 
+		void moveYawAndPitch(float deltaYaw, float deltaPitch)
+		{
+			m_yaw   += deltaYaw;
+			m_pitch += deltaPitch;
+			m_pitch = glm::clamp(m_pitch, -89.0f, 89.0f);
+
+			updateCameraOrientation();
+		}
+
 		/// \brief Gets the view matrix, recalculating it only if necessary.
 		/// \return A view matrix based on the camera's location and axis vectors.
 		glm::mat4 getViewMatrix()
@@ -96,11 +107,6 @@ namespace VenusEngine
 			return glm::perspective(glm::radians(m_verticalFieldOfViewDegrees), m_aspectRatio, m_nearClipPlaneDistance, m_farClipPlaneDistance);
 		}
 
-		glm::mat4 getViewProjectionMatrix()
-		{
-			return getProjectionMatrix() * getViewMatrix();
-		}
-
 		/// \brief Resets the camera to its original pose.
 		/// \post The position (eye point) is the same as what had been specified in
 		///   the constructor.
@@ -110,10 +116,19 @@ namespace VenusEngine
 		///   constructor.
 		void resetPose()
 		{
-			m_position = glm::vec3(0.0f, 0.0f, 1.0f);
+			m_position = glm::vec3(0.0f, 0.0f, 12.0f);
 			m_yaw   = 0.0f;
 			m_pitch = 0.0f;
 			updateCameraOrientation();
+		}
+
+		void draw(ShaderProgram& shaderProgram)
+		{
+			shaderProgram.enable();
+
+			shaderProgram.setUniformMatrix("uProjection", getProjectionMatrix());
+
+			shaderProgram.disable();
 		}
 
 	private:
