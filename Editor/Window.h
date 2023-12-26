@@ -10,6 +10,8 @@ namespace VenusEngine
 {
 	class Window
 	{
+		friend class KeyBuffer;
+
 	public:
 		Window()
 		{
@@ -55,6 +57,8 @@ namespace VenusEngine
 			glEnable(GL_PROGRAM_POINT_SIZE);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+			std::memset(m_keyWasPressed, 0, sizeof(m_keyWasPressed));
 		}
 
 		~Window()
@@ -69,7 +73,12 @@ namespace VenusEngine
 			glfwPollEvents();
 		}
 
-		bool shouldClose()
+		void closeWindow()
+		{
+			glfwSetWindowShouldClose(m_window, GLFW_TRUE);
+		}
+
+		bool shouldClose() const
 		{
 			return glfwWindowShouldClose(m_window);
 		}
@@ -94,6 +103,7 @@ namespace VenusEngine
 		{
 			if (action == GLFW_PRESS)
 			{
+				s_instance->m_keyWasPressed[key] = true;
 			}
 		}
 
@@ -108,6 +118,8 @@ namespace VenusEngine
 		GLFWwindow* m_window = nullptr;
 		int         m_width  = 1600;
 		int         m_height = 900;
+
+		bool m_keyWasPressed[GLFW_KEY_LAST + 1];
 
 	public:
 		static Window& get()

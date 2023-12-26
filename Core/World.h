@@ -36,13 +36,13 @@ namespace VenusEngine
 
             // Vertices
             float v0[] = { -side / 2 + 7.0f, -side / 2, -side / 2, 1.0f, 0.0f, 0.0f }; // Red
-            float v1[] = {  side / 2 + 7.0f, -side / 2, -side / 2, 1.0f, 1.0f, 0.0f };  // Yellow
-            float v2[] = {  side / 2 + 7.0f,  side / 2, -side / 2, 0.0f, 1.0f, 0.0f };   // Green
-            float v3[] = { -side / 2 + 7.0f,  side / 2, -side / 2, 0.0f, 0.0f, 1.0f };  // Blue
-            float v4[] = { -side / 2 + 7.0f, -side / 2,  side / 2, 1.0f, 1.0f, 0.0f };  // Yellow
-            float v5[] = {  side / 2 + 7.0f, -side / 2,  side / 2, 0.0f, 1.0f, 0.0f };   // Green
-            float v6[] = {  side / 2 + 7.0f,  side / 2,  side / 2, 0.0f, 0.0f, 1.0f };    // Blue
-            float v7[] = { -side / 2 + 7.0f,  side / 2,  side / 2, 1.0f, 0.0f, 0.0f };   // Red
+            float v1[] = {  side / 2 + 7.0f, -side / 2, -side / 2, 1.0f, 1.0f, 0.0f }; // Yellow
+            float v2[] = {  side / 2 + 7.0f,  side / 2, -side / 2, 0.0f, 1.0f, 0.0f }; // Green
+            float v3[] = { -side / 2 + 7.0f,  side / 2, -side / 2, 0.0f, 0.0f, 1.0f }; // Blue
+            float v4[] = { -side / 2 + 7.0f, -side / 2,  side / 2, 1.0f, 1.0f, 0.0f }; // Yellow
+            float v5[] = {  side / 2 + 7.0f, -side / 2,  side / 2, 0.0f, 1.0f, 0.0f }; // Green
+            float v6[] = {  side / 2 + 7.0f,  side / 2,  side / 2, 0.0f, 0.0f, 1.0f }; // Blue
+            float v7[] = { -side / 2 + 7.0f,  side / 2,  side / 2, 1.0f, 0.0f, 0.0f }; // Red
 
             // Define the cube using two triangles for each face
             // Front face
@@ -106,15 +106,25 @@ namespace VenusEngine
 
 		void tick(float deltaTime)
 		{
+            // Check for quit
+            if (m_controller.shouldExitWorld())
+            {
+                return;
+            }
+            // Tick camera
 			m_controller.moveCamera(m_camera, deltaTime * 0.01f);
 			m_controller.turnCamera(m_camera);
             m_camera.updateAspectRatio(static_cast<float>(Window::get().getWidth()) / Window::get().getHeight());
+            // TODO
 		}
 
 		void draw()
 		{
+            // Clear buffer bit
 			m_renderer.clearBuffer();
+            // Render camera
 			m_camera.draw(m_renderer.getShaderProgram());
+            // Render Mesh
 			m_scene.draw(m_renderer.getShaderProgram(), m_camera.getViewMatrix());
 		}
 

@@ -2,8 +2,10 @@
 
 #include <utility>
 
+#include "Editor/Window.h"
 #include "Core/Input.h"
 #include "Core/Camera.h"
+#include "Core/KeyBuffer.h"
 
 namespace VenusEngine
 {
@@ -64,6 +66,16 @@ namespace VenusEngine
                 m_mouseRightButtonPressed = false;
             }
             camera.moveYawAndPitch(deltaYaw, deltaPitch);
+        }
+
+        bool shouldExitWorld()
+        {
+            bool escapePressed = KeyBuffer::getPressedKey(GLFW_KEY_ESCAPE);
+            if (escapePressed)
+            {
+                Window::get().closeWindow();
+            }
+            return escapePressed;
         }
 
 	private:

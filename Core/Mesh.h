@@ -86,7 +86,7 @@ namespace VenusEngine
 			shaderProgram.setUniformMatrix("uModelView", viewMatrix);
 
 			m_vertexArray.bind();
-			glDrawArrays(GL_TRIANGLES, 0, m_vertices.size() / 6);
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 6);
 			m_vertexArray.unbind();
 
 			shaderProgram.disable();
