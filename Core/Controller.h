@@ -6,6 +6,7 @@
 #include "Core/Input.h"
 #include "Core/Camera.h"
 #include "Core/KeyBuffer.h"
+#include "Core/MouseBuffer.h"
 
 namespace VenusEngine
 {
@@ -76,6 +77,15 @@ namespace VenusEngine
                 Window::get().closeWindow();
             }
             return escapePressed;
+        }
+
+        std::pair<float, float> updateActiveMesh()
+        {
+            if (MouseBuffer::getPressedLeftButton() == false)
+            {
+                return {};
+            }
+            return MouseBuffer::getPressedLeftButtonPos();
         }
 
 	private:

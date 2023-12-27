@@ -11,6 +11,7 @@ namespace VenusEngine
 	class Window
 	{
 		friend class KeyBuffer;
+		friend class MouseBuffer;
 
 	public:
 		Window()
@@ -42,6 +43,7 @@ namespace VenusEngine
 			glfwSwapInterval(1);
 
 			glfwSetKeyCallback(m_window, keyCallback);
+			glfwSetMouseButtonCallback(m_window, mouseCallback);
 			glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
 
 			if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -59,6 +61,8 @@ namespace VenusEngine
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 			std::memset(m_keyWasPressed, 0, sizeof(m_keyWasPressed));
+
+			m_mouseLeftButtonPressed = false;
 		}
 
 		~Window()
@@ -107,6 +111,18 @@ namespace VenusEngine
 			}
 		}
 
+		static void mouseCallback(GLFWwindow* window, int button, int action, int mods)
+		{
+			if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
+			{
+				double xpos, ypos;
+				glfwGetCursorPos(window, &xpos, &ypos);
+				s_instance->m_mouseLeftButtonPressed = true;
+				s_instance->m_mousePos.first = xpos;
+				s_instance->m_mousePos.second = ypos;
+			}
+		}
+
 		static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
 		{
 			glViewport(0, 0, width, height);
@@ -120,6 +136,9 @@ namespace VenusEngine
 		int         m_height = 900;
 
 		bool m_keyWasPressed[GLFW_KEY_LAST + 1];
+
+		bool m_mouseLeftButtonPressed;
+		std::pair<float, float> m_mousePos;
 
 	public:
 		static Window& get()

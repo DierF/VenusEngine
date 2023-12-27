@@ -85,7 +85,31 @@ namespace VenusEngine
 			return m_meshes[meshName];
 		}
 
+		/// \brief Sets the active mesh to the mesh named "meshName".
+		/// The active mesh is the one affected by transforms.
+		/// \param[in] meshName The name of the mesh that should be active.
+		/// \pre The scene contains a mesh with that name.
+		/// \post The mesh with that name becomes the active mesh.
+		void setActiveMesh(std::string const& activeMeshName)
+		{
+			m_activeMeshName = activeMeshName;
+		}
+
+		bool hasActiveMesh()
+		{
+			return m_activeMeshName != std::string();
+		}
+
+		/// \brief Gets the active mesh.
+		/// \pre The scene has at least one mesh.
+		/// \return The active mesh.
+		std::shared_ptr<Mesh> getActiveMesh()
+		{
+			return m_meshes[m_activeMeshName];
+		}
+
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> m_meshes;
+		std::string                                            m_activeMeshName;
 	};
 }

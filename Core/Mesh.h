@@ -83,7 +83,7 @@ namespace VenusEngine
 		{
 			shaderProgram.enable();
 
-			shaderProgram.setUniformMatrix("uModelView", viewMatrix);
+			shaderProgram.setUniformMatrix("uModelView", viewMatrix * m_transform.getMatrix());
 
 			m_vertexArray.bind();
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 6);
@@ -92,9 +92,17 @@ namespace VenusEngine
 			shaderProgram.disable();
 		}
 
+		/// \brief Gets the mesh's world matrix.
+		/// \return The world matrix.
+		Transform& getTransform()
+		{
+			return m_transform;
+		}
+
 	private:
 		std::vector<float> m_vertices;
-		VertexArray m_vertexArray;
-		VertexBuffer m_vertexBuffer;
+		Transform          m_transform;
+		VertexArray        m_vertexArray;
+		VertexBuffer       m_vertexBuffer;
 	};
 }

@@ -115,7 +115,14 @@ namespace VenusEngine
 			m_controller.moveCamera(m_camera, deltaTime * 0.01f);
 			m_controller.turnCamera(m_camera);
             m_camera.updateAspectRatio(static_cast<float>(Window::get().getWidth()) / Window::get().getHeight());
-            // TODO
+            // Update active mesh
+            auto pos = m_controller.updateActiveMesh();
+            if (pos != std::pair<float, float>())
+            {
+                std::cout << "[ " << pos.first << ", " << pos.second << " ]\n";
+            }
+            // Move cube
+            m_scene.getMesh("Cube")->getTransform().m_position += Vec3(-0.05f, 0.0f, 0.0f);
 		}
 
 		void draw()

@@ -30,10 +30,10 @@ namespace VenusEngine
         }
 
         /// Pointer accessor for direct copying
-        float* ptr() { return&w; }
+        float* ptr() { return &w; }
 
         /// Pointer accessor for direct copying
-        const float* ptr() const { return&w; }
+        float const* ptr() const { return &w; }
 
         void fromRotationMatrix(Mat3 const& rotation);
         void toRotationMatrix(Mat3& rotation) const;
