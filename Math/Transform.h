@@ -6,11 +6,8 @@
 
 namespace VenusEngine
 {
-    REFLECTION_TYPE(Transform)
-    CLASS(Transform, Fields)
+    class Transform
     {
-        REFLECTION_BODY(Transform);
-
     public:
         Vec3       m_position { Vec3::ZERO };
         Vec3       m_scale    { Vec3::UNIT_SCALE };

@@ -2,11 +2,11 @@
 
 #include <vector>
 
-#include <glm/mat4x4.hpp>
-
 #include "Render/ShaderProgram.h"
 #include "Render/VertexArray.h"
 #include "Render/VertexBuffer.h"
+
+#include "Math/MathHeaders.h"
 
 namespace VenusEngine
 {
@@ -79,7 +79,7 @@ namespace VenusEngine
 		/// \pre This Mesh has been prepared.
 		/// \post While the ShaderProgram was enabled, the viewMatrix has been set as
 		///   the "uModelView" uniform matrix and the geometry has been drawn.
-		void draw(ShaderProgram& shaderProgram, glm::mat4 const& viewMatrix)
+		void draw(ShaderProgram& shaderProgram, Mat4 const& viewMatrix)
 		{
 			shaderProgram.enable();
 

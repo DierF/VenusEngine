@@ -9,10 +9,9 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/type_ptr.hpp>
 
 #include "Render/Shader.h"
+#include "Math/MathHeaders.h"
 
 namespace VenusEngine
 {
@@ -47,10 +46,12 @@ namespace VenusEngine
 			return glGetUniformLocation(m_programId, uniformName.c_str());
 		}
 
-		void setUniformMatrix(std::string const& uniform, glm::mat4x4 const& value)
+		void setUniformMatrix(std::string const& uniform, Mat4 const& value)
 		{
 			GLint location = getUniformLocation(uniform);
-			glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+			float data[16];
+			value.toData(data);
+			glUniformMatrix4fv(location, 1, GL_TRUE, data);
 		}
 
 		void createVertexShader(std::string const& vertexShaderFilename)
@@ -59,7 +60,7 @@ namespace VenusEngine
 			m_vertexShader.attach(m_programId);
 		}
 
-		void createFragmentShader(const std::string& fragmentShaderFilename)
+		void createFragmentShader(std::string const& fragmentShaderFilename)
 		{
 			m_fragmentShader.compile(fragmentShaderFilename);
 			m_fragmentShader.attach(m_programId);
@@ -92,7 +93,7 @@ namespace VenusEngine
 		}
 
 	private:
-		void writeInfoLog(GLuint shaderId, bool isShader, const std::string& logFilename) const
+		void writeInfoLog(GLuint shaderId, bool isShader, std::string const& logFilename) const
 		{
 			GLint infoLogLength = 0;
 			if (isShader)

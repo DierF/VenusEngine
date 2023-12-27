@@ -29,7 +29,7 @@ include_directories(".")
 
 add_executable(VenusEngine main.cpp ${CoreFiles} ${RenderFiles} ${EditorFiles} ${MathFiles} ${gladc})
 
-target_link_libraries(VenusEngine PUBLIC glfw glm)
+target_link_libraries(VenusEngine PUBLIC glfw)
 
 target_include_directories(VenusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Library/glad/include)
 

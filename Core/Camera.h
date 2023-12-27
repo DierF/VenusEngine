@@ -1,10 +1,7 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-
 #include "Render/ShaderProgram.h"
+#include "Math/MathHeaders.h"
 
 namespace VenusEngine
 {
@@ -12,7 +9,7 @@ namespace VenusEngine
 	class Camera
 	{
 	public:
-		Camera(glm::vec3 const& position,
+		Camera(Vec3 const& position,
 			   float yaw,
 			   float pitch,
 			   float nearClipPlaneDistance,
@@ -37,7 +34,7 @@ namespace VenusEngine
 		/// \brief Sets the position (eye point) of the camera.
 		/// \param[in] position The new position of the camera.
 		/// \post The camera's location has been changed.
-		void setPosition(glm::vec3 const& position)
+		void setPosition(Vec3 const& position)
 		{
 			m_position = position;
 		}
@@ -70,23 +67,23 @@ namespace VenusEngine
 		{
 			m_yaw   += deltaYaw;
 			m_pitch += deltaPitch;
-			m_pitch = glm::clamp(m_pitch, -89.0f, 89.0f);
+			m_pitch = Math::clamp(m_pitch, -89.0f, 89.0f);
 
 			updateCameraOrientation();
 		}
 
 		/// \brief Gets the view matrix, recalculating it only if necessary.
 		/// \return A view matrix based on the camera's location and axis vectors.
-		glm::mat4 getViewMatrix()
+		Mat4 getViewMatrix()
 		{
-			return glm::lookAt(m_position, m_position + m_frontDirection, m_upDirection);
+			return Math::makeLookAtMatrix(m_position, m_position + m_frontDirection, m_upDirection);
 		}
 
 		/// \brief Gets the projection matrix.
 		/// \return The projection matrix.
-		glm::mat4 getProjectionMatrix()
+		Mat4 getProjectionMatrix()
 		{
-			return glm::perspective(glm::radians(m_verticalFieldOfViewDegrees), m_aspectRatio, m_nearClipPlaneDistance, m_farClipPlaneDistance);
+			return Math::makePerspectiveMatrix(Radian(Math::degreesToRadians(m_verticalFieldOfViewDegrees)), m_aspectRatio, m_nearClipPlaneDistance, m_farClipPlaneDistance);
 		}
 
 		/// \brief Resets the camera to its original pose.
@@ -98,7 +95,7 @@ namespace VenusEngine
 		///   constructor.
 		void resetPose()
 		{
-			m_position = glm::vec3(0.0f, 0.0f, 12.0f);
+			m_position = Vec3(0.0f, 0.0f, 12.0f);
 			m_yaw   = 0.0f;
 			m_pitch = 0.0f;
 			updateCameraOrientation();
@@ -121,18 +118,23 @@ namespace VenusEngine
 	private:
 		void updateCameraOrientation()
 		{
-			glm::quat pitchQuat = glm::angleAxis(glm::radians(m_pitch), glm::vec3(1.0f, 0.0f, 0.0f));
-			glm::quat yawQuat   = glm::angleAxis(glm::radians(m_yaw), glm::vec3(0.0f, 1.0f, 0.0f));
-			glm::quat orientation = yawQuat * pitchQuat;
-			glm::mat4 rotationMatrix = glm::toMat4(orientation);
-			m_frontDirection = glm::normalize(glm::vec3(rotationMatrix * glm::vec4(0.0f, 0.0f, -1.0f, 0.0f)));
-			m_rightDirection = glm::normalize(glm::cross(m_frontDirection, glm::vec3(0.0f, 1.0f, 0.0f)));
-			m_upDirection    = glm::normalize(glm::cross(m_rightDirection, m_frontDirection));
+			Quaternion pitchQuat = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_pitch)), Vec3(1.0f, 0.0f, 0.0f));
+			Quaternion yawQuat   = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_yaw)), Vec3(0.0f, 1.0f, 0.0f));
+			Quaternion orientation = yawQuat * pitchQuat;
+			Mat4 rotationMatrix;
+			orientation.toRotationMatrix(rotationMatrix);
+			Vec4 front = rotationMatrix * Vec4(0.0f, 0.0f, -1.0f, 0.0f);
+			m_frontDirection = Vec3(front.x, front.y, front.z);
+			m_frontDirection.normalise();
+			m_rightDirection = m_frontDirection.crossProduct(Vec3(0.0f, 1.0f, 0.0f));
+			m_rightDirection.normalise();
+			m_upDirection = m_rightDirection.crossProduct(m_frontDirection);
+			m_upDirection.normalise();
 		}
 
 	private:
 		/// The location of the camera.
-		glm::vec3 m_position;
+		Vec3 m_position;
 
 		/// horizontal (in degree)
 		float m_yaw;
@@ -146,10 +148,10 @@ namespace VenusEngine
 		float m_verticalFieldOfViewDegrees;
 
 		/// A vector pointing back from the camera.
-		glm::vec3 m_frontDirection;
+		Vec3 m_frontDirection;
 		/// A vector pointing right from the camera.
-		glm::vec3 m_rightDirection;
+		Vec3 m_rightDirection;
 		/// A vector pointing up from the camera.
-		glm::vec3 m_upDirection;
+		Vec3 m_upDirection;
 	};
 }

@@ -7,8 +7,3 @@ if(NOT TARGET glfw)
     set_target_properties(glfw PROPERTIES FOLDER glfw)
     set_target_properties(update_mappings PROPERTIES FOLDER glfw)
 endif()
-
-if(NOT TARGET glm)
-    add_subdirectory(glm)
-    set_target_properties(glm PROPERTIES FOLDER glm)
-endif()

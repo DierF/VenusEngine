@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Math/AxisAligned.h"
 #include "Math/Degree.h"
 #include "Math/Math.h"
 #include "Math/Matrix3.h"

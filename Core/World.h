@@ -12,7 +12,7 @@ namespace VenusEngine
 	{
 	public:
 		World()
-			: m_camera(glm::vec3(0.0f, 0.0f, 15.0f), 0.0f, 0.0f, 0.1f, 1000.0f, 1200.0f / 900.0f, 45.0f)
+			: m_camera(Vec3(0.0f, 0.0f, 15.0f), 0.0f, 0.0f, 0.1f, 1000.0f, 1200.0f / 900.0f, 45.0f)
 		{
 			// 3 2D points, followed by 3 RGB colors
 			std::vector<float> triVertices

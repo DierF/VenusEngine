@@ -2,8 +2,6 @@
 
 #include <unordered_map>
 
-#include "glm/glm.hpp"
-
 #include "Core/Mesh.h"
 
 namespace VenusEngine
@@ -58,7 +56,7 @@ namespace VenusEngine
 		///   drawing.
 		/// \param[in] viewMatrix The view matrix that should be used when drawing
 		///   the Scene.
-		void draw(ShaderProgram& shaderProgram, glm::mat4 const& viewMatrix)
+		void draw(ShaderProgram& shaderProgram, Mat4 const& viewMatrix)
 		{
 			for (auto& pair : m_meshes)
 			{
