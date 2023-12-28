@@ -6,6 +6,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "Editor/Gui.h"
+
 namespace VenusEngine
 {
 	class Window
@@ -42,6 +44,7 @@ namespace VenusEngine
 
 			glfwSwapInterval(1);
 
+			glfwSetErrorCallback(glfw_error_callback);
 			glfwSetKeyCallback(m_window, keyCallback);
 			glfwSetMouseButtonCallback(m_window, mouseCallback);
 			glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
@@ -63,10 +66,13 @@ namespace VenusEngine
 			std::memset(m_keyWasPressed, 0, sizeof(m_keyWasPressed));
 
 			m_mouseLeftButtonPressed = false;
+
+			Gui::init(m_window);
 		}
 
 		~Window()
 		{
+			Gui::destroy();
 			glfwDestroyWindow(m_window);
 			glfwTerminate();
 		}
@@ -103,6 +109,11 @@ namespace VenusEngine
 		}
 
 	private:
+		static void glfw_error_callback(int error, const char* description)
+		{
+			fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+		}
+
 		static void keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			if (action == GLFW_PRESS)
@@ -118,8 +129,8 @@ namespace VenusEngine
 				double xpos, ypos;
 				glfwGetCursorPos(window, &xpos, &ypos);
 				s_instance->m_mouseLeftButtonPressed = true;
-				s_instance->m_mousePos.first = xpos;
-				s_instance->m_mousePos.second = ypos;
+				s_instance->m_mousePos.first = float(xpos);
+				s_instance->m_mousePos.second = float(ypos);
 			}
 		}
 

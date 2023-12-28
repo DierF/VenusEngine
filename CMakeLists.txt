@@ -19,19 +19,21 @@ file(GLOB_RECURSE RenderFiles "Render/*")
 file(GLOB_RECURSE EditorFiles "Editor/*")
 file(GLOB_RECURSE MathFiles "Math/*")
 file(GLOB gladc "Library/glad/src/glad.c")
+file(GLOB imguiFiles "Library/imgui/*" "Library/imgui/backends/imgui_impl_glfw.cpp" "Library/imgui/backends/imgui_impl_opengl3.cpp")
 
 source_group("Core" FILES ${CoreFiles})
 source_group("Render" FILES ${RenderFiles})
 source_group("Editor" FILES ${EditorFiles})
 source_group("Math" FILES ${MathFiles})
+source_group("imgui" FILES ${imguiFiles})
 
 include_directories(".")
 
-add_executable(VenusEngine main.cpp ${CoreFiles} ${RenderFiles} ${EditorFiles} ${MathFiles} ${gladc})
+add_executable(VenusEngine main.cpp ${CoreFiles} ${RenderFiles} ${EditorFiles} ${MathFiles} ${gladc} ${imguiFiles})
 
 target_link_libraries(VenusEngine PUBLIC glfw)
 
-target_include_directories(VenusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Library/glad/include)
+target_include_directories(VenusEngine PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/Library/glad/include ${CMAKE_CURRENT_SOURCE_DIR}/Library/imgui)
 
 add_subdirectory(Library)
 

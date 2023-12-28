@@ -9,7 +9,7 @@ namespace VenusEngine
     Quaternion const Quaternion::ZERO(0, 0, 0, 0);
     Quaternion const Quaternion::IDENTITY(1, 0, 0, 0);
 
-    float const Quaternion::k_epsilon = 1e-03;
+    float const Quaternion::k_epsilon = float(1e-03);
 
     Quaternion Quaternion::operator*(Quaternion const& rhs) const
     {

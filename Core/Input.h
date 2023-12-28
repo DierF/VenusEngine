@@ -23,7 +23,7 @@ namespace VenusEngine
 		{
 			double x, y;
 			glfwGetCursorPos(Window::get().nativeWindow(), &x, &y);
-			return { x, y };
+			return { float(x), float(y) };
 		}
 	};
 }
