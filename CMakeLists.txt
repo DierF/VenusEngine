@@ -25,7 +25,6 @@ source_group("Core" FILES ${CoreFiles})
 source_group("Render" FILES ${RenderFiles})
 source_group("Editor" FILES ${EditorFiles})
 source_group("Math" FILES ${MathFiles})
-source_group("imgui" FILES ${imguiFiles})
 
 include_directories(".")
 

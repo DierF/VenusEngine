@@ -5,6 +5,8 @@
 #include "Core/Camera.h"
 #include "Core/Controller.h"
 #include "Render/Renderer.h"
+#include "Render/Framebuffer.h"
+#include "Render/Texture.h"
 
 namespace VenusEngine
 {
@@ -102,6 +104,13 @@ namespace VenusEngine
             cube_mesh_ptr->addGeometry(cubeVertices);
             cube_mesh_ptr->prepareVao();
 			m_scene.add("Cube", cube_mesh_ptr);
+
+            m_framebuffer.bind();
+            m_texture.bind();
+            m_texture.image2D(Window::get().getWidth(), Window::get().getHeight());
+            m_texture.filter();
+            m_texture.unbind();
+            m_framebuffer.texture(m_texture.id());
 		}
 
 		void tick(float deltaTime)
@@ -127,12 +136,23 @@ namespace VenusEngine
 
 		void draw()
 		{
+            m_framebuffer.bind();
+            m_texture.bind();
+            m_texture.image2D(m_viewportSize.first, m_viewportSize.second);
+            m_texture.unbind();
+
+            // Draw active mesh window
+            Gui::activeMeshWindow(m_scene.activeMeshName().c_str());
             // Clear buffer bit
 			m_renderer.clearBuffer();
             // Render camera
 			m_camera.draw(m_renderer.getShaderProgram());
             // Render Mesh
 			m_scene.draw(m_renderer.getShaderProgram(), m_camera.getViewMatrix());
+            // Draw viewport window
+            m_viewportSize = Gui::viewportWindow(m_texture.id());
+
+            m_framebuffer.unbind();
 		}
 
 	private:
@@ -140,5 +160,9 @@ namespace VenusEngine
 		Controller m_controller;
 		Camera     m_camera;
 		Scene      m_scene;
+
+        Framebuffer m_framebuffer;
+        Texture     m_texture;
+        std::pair<float, float> m_viewportSize;
 	};
 }

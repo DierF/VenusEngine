@@ -6,8 +6,6 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
-#include "Editor/Gui.h"
-
 namespace VenusEngine
 {
 	class Window
@@ -66,13 +64,10 @@ namespace VenusEngine
 			std::memset(m_keyWasPressed, 0, sizeof(m_keyWasPressed));
 
 			m_mouseLeftButtonPressed = false;
-
-			Gui::init(m_window);
 		}
 
 		~Window()
 		{
-			Gui::destroy();
 			glfwDestroyWindow(m_window);
 			glfwTerminate();
 		}

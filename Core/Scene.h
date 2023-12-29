@@ -108,6 +108,11 @@ namespace VenusEngine
 			return m_meshes[m_activeMeshName];
 		}
 
+		std::string const& activeMeshName() const
+		{
+			return m_activeMeshName;
+		}
+
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> m_meshes;
 		std::string                                            m_activeMeshName;

@@ -10,9 +10,15 @@ namespace VenusEngine
 	class Application
 	{
 	public:
-		Application() = default;
+		Application()
+		{
+			Gui::init(m_window.nativeWindow());
+		}
 
-		~Application() = default;
+		~Application()
+		{
+			Gui::destroy();
+		}
 
 		void run()
 		{
@@ -22,10 +28,12 @@ namespace VenusEngine
 				float deltaTime = m_timer.elapsedMilliseconds();
 				m_timer.reset();
 				Gui::newFrame();
+				Gui::beginDockspace();
 				bool demo = true;
 				ImGui::ShowDemoWindow(&demo);
 				m_world.tick(deltaTime);
 				m_world.draw();
+				Gui::endDockspace();
 				Gui::draw();
 				m_window.update();
 			}
