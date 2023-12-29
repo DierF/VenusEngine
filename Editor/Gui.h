@@ -1,5 +1,7 @@
 #pragma once
 
+#include <vector>
+
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
@@ -64,14 +66,10 @@ namespace VenusEngine
 
 		static void beginDockspace()
 		{
-			// Note: Switch this to true to enable dockspace
 			static bool dockspaceOpen = true;
 			static bool opt_fullscreen_persistant = true;
 			bool opt_fullscreen = opt_fullscreen_persistant;
 			static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_None;
-
-			// We are using the ImGuiWindowFlags_NoDocking flag to make the parent window not dockable into,
-			// because it would be confusing to have two docking targets within each others.
 			ImGuiWindowFlags window_flags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking;
 			if (opt_fullscreen)
 			{
@@ -84,23 +82,17 @@ namespace VenusEngine
 				window_flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove;
 				window_flags |= ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
 			}
-
-			// When using ImGuiDockNodeFlags_PassthruCentralNode, DockSpace() will render our background and handle the pass-thru hole, so we ask Begin() to not render a background.
 			if (dockspace_flags & ImGuiDockNodeFlags_PassthruCentralNode)
+			{
 				window_flags |= ImGuiWindowFlags_NoBackground;
-
-			// Important: note that we proceed even if Begin() returns false (aka window is collapsed).
-			// This is because we want to keep our DockSpace() active. If a DockSpace() is inactive, 
-			// all active windows docked into it will lose their parent and become undocked.
-			// We cannot preserve the docking relationship between an active window and an inactive docking, otherwise 
-			// any change of dockspace/settings would lead to windows being stuck in limbo and never being visible.
+			}
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::Begin("DockSpace Demo", &dockspaceOpen, window_flags);
 			ImGui::PopStyleVar();
-
 			if (opt_fullscreen)
+			{
 				ImGui::PopStyleVar(2);
-
+			}
 			// DockSpace
 			ImGuiIO& io = ImGui::GetIO();
 			ImGuiStyle& style = ImGui::GetStyle();
@@ -111,7 +103,6 @@ namespace VenusEngine
 				ImGuiID dockspace_id = ImGui::GetID("MyDockSpace");
 				ImGui::DockSpace(dockspace_id, ImVec2(0.0f, 0.0f), dockspace_flags);
 			}
-
 			style.WindowMinSize.x = minWinSizeX;
 			if (ImGui::BeginMenuBar())
 			{
@@ -146,11 +137,36 @@ namespace VenusEngine
 			ImGui::End();
 		}
 
-		static void activeMeshWindow(char const* activeMeshName)
+		static void activeMeshWindow(std::string const& activeMeshName)
 		{
-			ImGui::Begin("active");
-			ImGui::Text("Name: %s", activeMeshName);
+			ImGui::Begin("Active Mesh");
+			ImGui::Text("Name: %s", activeMeshName.c_str());
 			ImGui::End();
+		}
+
+		static std::pair<bool, std::string> allMeshWindow(std::string const& activeMeshName, std::vector<std::string> const& allMeshNames)
+		{
+			std::string selectedMeshName;
+			ImGui::Begin("All Meshes");
+			// Display a list of mesh names
+			for (auto const& meshName : allMeshNames)
+			{
+				// Use a different color for the active mesh
+				if (meshName == activeMeshName)
+				{
+					ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s (Active)", meshName.c_str());
+				}
+				else
+				{
+					ImGui::Text("%-50s", meshName.c_str());
+					if (ImGui::IsItemClicked())
+					{
+						selectedMeshName = meshName;
+					}
+				}
+			}
+			ImGui::End();
+			return { !selectedMeshName.empty(), selectedMeshName};
 		}
 
 		static std::pair<float, float> viewportWindow(uint64_t textureId)

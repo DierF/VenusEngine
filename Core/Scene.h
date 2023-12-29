@@ -113,6 +113,17 @@ namespace VenusEngine
 			return m_activeMeshName;
 		}
 
+		std::vector<std::string> allMeshNames() const
+		{
+			std::vector<std::string> names;
+			names.reserve(m_meshes.size());
+			for (auto iter = m_meshes.begin(); iter != m_meshes.end(); ++iter)
+			{
+				names.push_back(iter->first);
+			}
+			return names;
+		}
+
 	private:
 		std::unordered_map<std::string, std::shared_ptr<Mesh>> m_meshes;
 		std::string                                            m_activeMeshName;

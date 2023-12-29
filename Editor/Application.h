@@ -29,8 +29,6 @@ namespace VenusEngine
 				m_timer.reset();
 				Gui::newFrame();
 				Gui::beginDockspace();
-				bool demo = true;
-				ImGui::ShowDemoWindow(&demo);
 				m_world.tick(deltaTime);
 				m_world.draw();
 				Gui::endDockspace();

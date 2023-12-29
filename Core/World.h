@@ -141,8 +141,14 @@ namespace VenusEngine
             m_texture.image2D(m_viewportSize.first, m_viewportSize.second);
             m_texture.unbind();
 
+            // Draw all meshes window
+            auto const& [selected, selectedMeshName] = Gui::allMeshWindow(m_scene.activeMeshName(), m_scene.allMeshNames());
+            if (selected)
+            {
+                m_scene.setActiveMesh(selectedMeshName);
+            }
             // Draw active mesh window
-            Gui::activeMeshWindow(m_scene.activeMeshName().c_str());
+            Gui::activeMeshWindow(m_scene.activeMeshName());
             // Clear buffer bit
 			m_renderer.clearBuffer();
             // Render camera
