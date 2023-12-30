@@ -5,7 +5,6 @@
 #include "Render/ShaderProgram.h"
 #include "Render/VertexArray.h"
 #include "Render/VertexBuffer.h"
-
 #include "Math/MathHeaders.h"
 
 namespace VenusEngine
@@ -58,18 +57,32 @@ namespace VenusEngine
 			m_vertexArray.bind();
 			m_vertexBuffer.bind();
 			m_vertexBuffer.bufferData(m_vertices.size() * sizeof(float), m_vertices.data(), GL_STATIC_DRAW);
-			// Tell the shaders how the data in the array is laid out
-			glEnableVertexAttribArray(0);
-			// Positions have 2 parts, each are floats, and start at beginning of array
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-				reinterpret_cast<void*>(0));
-			glEnableVertexAttribArray(1);
-			// Colors have 3 parts, each are floats, and start at 7th position in array
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float),
-				reinterpret_cast<void*>(3 * sizeof(float)));
+			enableAttributes();
 			m_vertexBuffer.unbind();
 			m_vertexArray.unbind();
 		}
+
+		/// \brief Adds additional triangles to this Mesh.
+		/// \param[in] indices A collection of indices into the vertex buffer for 1
+		///   or more triangles.  There must be 3 indices per triangle.
+		/// \pre This Mesh has not yet been prepared.
+		/// \post The indices have been appended to this Mesh's internal index store
+		///   for future use.
+		void addIndices(std::vector<unsigned int> const& indices)
+		{
+			std::size_t oldSize = m_indices.size();
+			std::size_t newSize = m_indices.size() + indices.size();
+			m_indices.resize(newSize);
+			std::copy(indices.begin(), indices.end(), m_indices.begin() + oldSize);
+		}
+
+		/// \brief Gets the number of floats used to represent each vertex.
+		/// \return The number of floats used for each vertex.
+		std::size_t getFloatsPerVertex() const
+		{
+			return m_vertices.size() / m_indices.size();
+		}
+
 
 		/// \brief Draws this Mesh in OpenGL.
 		/// \param[in] shaderProgram A pointer to the ShaderProgram that should
@@ -100,9 +113,25 @@ namespace VenusEngine
 		}
 
 	private:
-		std::vector<float> m_vertices;
-		Transform          m_transform;
-		VertexArray        m_vertexArray;
-		VertexBuffer       m_vertexBuffer;
+		/// \brief Enables VAO attributes.
+		/// \pre This Mesh's VAO has been bound.
+		/// \post Any attributes (positions, colors, normals, texture coordinates)
+		///   have been enabled and configured.
+		/// This should only be called from the middle of prepareVao().
+		void enableAttributes()
+		{
+			glEnableVertexAttribArray(0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(0));
+
+			glEnableVertexAttribArray(1);
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+		}
+
+	private:
+		std::vector<float>        m_vertices;
+		std::vector<unsigned int> m_indices;
+		Transform                 m_transform;
+		VertexArray               m_vertexArray;
+		VertexBuffer              m_vertexBuffer;
 	};
 }

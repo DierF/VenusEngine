@@ -8,7 +8,9 @@
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
-#include "Window.h"
+#include "Core/Scene.h"
+#include "Editor/Window.h"
+#include "Math/Transform.h"
 
 namespace VenusEngine
 {
@@ -137,10 +139,38 @@ namespace VenusEngine
 			ImGui::End();
 		}
 
-		static void activeMeshWindow(std::string const& activeMeshName)
+		static void activeMeshWindow(Scene& scene)
 		{
 			ImGui::Begin("Active Mesh");
-			ImGui::Text("Name: %s", activeMeshName.c_str());
+			if (scene.hasActiveMesh())
+			{
+				ImGui::Text("Name: %s", scene.activeMeshName().c_str());
+
+				Transform& transform = scene.getActiveMesh()->getTransform();
+				ImGui::Text("Translation:");
+				ImGui::SliderFloat("X##TranslateX", &transform.m_position.x, -100.0f, 100.0f);
+				ImGui::SliderFloat("Y##TranslateY", &transform.m_position.y, -100.0f, 100.0f);
+				ImGui::SliderFloat("Z##TranslateZ", &transform.m_position.z, -100.0f, 100.0f);
+			
+				ImGui::Text("Rotation:");
+				ImGui::SliderFloat("X##RotationX", &transform.m_rotation.x, -1.0f, 1.0f);
+				ImGui::SliderFloat("Y##RotationY", &transform.m_rotation.y, -1.0f, 1.0f);
+				ImGui::SliderFloat("Z##RotationZ", &transform.m_rotation.z, -1.0f, 1.0f);
+				ImGui::SliderFloat("W##RotationW", &transform.m_rotation.w, -1.0f, 1.0f);
+				
+				ImGui::Text("Scale:");
+				float scale = transform.m_scale.x;
+				ImGui::SliderFloat("##Scale", &scale, 0.1f, 10.0f);
+				transform.m_scale.x = scale;
+				transform.m_scale.y = scale;
+				transform.m_scale.z = scale;
+
+				if (ImGui::Button(("Delete##Mesh")))
+				{
+					scene.remove(scene.activeMeshName());
+				}
+			}
+
 			ImGui::End();
 		}
 

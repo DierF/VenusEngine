@@ -41,6 +41,10 @@ namespace VenusEngine
 		void remove(std::string const& meshName)
 		{
 			m_meshes.erase(meshName);
+			if (meshName == m_activeMeshName)
+			{
+				m_activeMeshName.clear();
+			}
 		}
 
 		/// \brief Removes all Meshes from this Scene.
@@ -49,6 +53,7 @@ namespace VenusEngine
 		void clear()
 		{
 			m_meshes.clear();
+			m_activeMeshName.clear();
 		}
 
 		/// \brief Draws all of the elements in this Scene.
@@ -97,7 +102,7 @@ namespace VenusEngine
 
 		bool hasActiveMesh()
 		{
-			return m_activeMeshName != std::string();
+			return !m_activeMeshName.empty();
 		}
 
 		/// \brief Gets the active mesh.

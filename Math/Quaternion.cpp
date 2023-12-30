@@ -159,6 +159,23 @@ namespace VenusEngine
         return object_orientation;
     }
 
+    // Function to set quaternion from yaw, pitch, and roll (YXZ rotation order)
+    void Quaternion::fromYawPitchRoll(Radian const& yaw, Radian const& pitch, Radian const& roll)
+    {
+        // YXZ rotation order
+        float cy = std::cos(float(yaw)   * 0.5f);
+        float sy = std::sin(float(yaw)   * 0.5f);
+        float cp = std::cos(float(pitch) * 0.5f);
+        float sp = std::sin(float(pitch) * 0.5f);
+        float cr = std::cos(float(roll)  * 0.5f);
+        float sr = std::sin(float(roll)  * 0.5f);
+
+        w = cy * cp * cr + sy * sp * sr;
+        x = cy * cp * sr - sy * sp * cr;
+        y = sy * cp * sr + cy * sp * cr;
+        z = sy * cp * cr - cy * sp * sr;
+    }
+
     void Quaternion::toAngleAxis(Radian& angle, Vec3& axis) const
     {
         // The quaternion representing the rotation is

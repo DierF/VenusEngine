@@ -47,6 +47,9 @@ namespace VenusEngine
 
         static Quaternion getQuaternionFromDirection(Vec3 const& direction, Vec3 const& up_direction);
 
+        // Function to set quaternion from yaw, pitch, and roll (YXZ rotation order)
+        void fromYawPitchRoll(Radian const& yaw, Radian const& pitch, Radian const& roll);
+
         void toAngleAxis(Radian& angle, Vec3& axis) const;
 
         /** Constructs the quaternion using 3 axes, the axes are assumed to be orthonormal

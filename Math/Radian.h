@@ -61,6 +61,11 @@ namespace VenusEngine
         bool operator>=(Radian const& r) const { return m_radian >= r.m_radian; }
         bool operator> (Radian const& r) const { return m_radian >  r.m_radian; }
 
+        float* ptr()
+        {
+            return &m_radian;
+        }
+
     private:
         float m_radian;
     };

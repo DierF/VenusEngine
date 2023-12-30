@@ -59,6 +59,11 @@ namespace VenusEngine
         bool operator>=(Degree const& d) const { return m_degree >= d.m_degree; }
         bool operator> (Degree const& d) const { return m_degree >  d.m_degree; }
 
+        float* ptr()
+        {
+            return &m_degree;
+        }
+
     private:
         float m_degree;
     };

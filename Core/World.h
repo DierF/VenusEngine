@@ -37,14 +37,14 @@ namespace VenusEngine
             float side = 5.0f; // Length of each side
 
             // Vertices
-            float v0[] = { -side / 2 + 7.0f, -side / 2, -side / 2, 1.0f, 0.0f, 0.0f }; // Red
-            float v1[] = {  side / 2 + 7.0f, -side / 2, -side / 2, 1.0f, 1.0f, 0.0f }; // Yellow
-            float v2[] = {  side / 2 + 7.0f,  side / 2, -side / 2, 0.0f, 1.0f, 0.0f }; // Green
-            float v3[] = { -side / 2 + 7.0f,  side / 2, -side / 2, 0.0f, 0.0f, 1.0f }; // Blue
-            float v4[] = { -side / 2 + 7.0f, -side / 2,  side / 2, 1.0f, 1.0f, 0.0f }; // Yellow
-            float v5[] = {  side / 2 + 7.0f, -side / 2,  side / 2, 0.0f, 1.0f, 0.0f }; // Green
-            float v6[] = {  side / 2 + 7.0f,  side / 2,  side / 2, 0.0f, 0.0f, 1.0f }; // Blue
-            float v7[] = { -side / 2 + 7.0f,  side / 2,  side / 2, 1.0f, 0.0f, 0.0f }; // Red
+            float v0[] = { -side / 2, -side / 2, -side / 2, 1.0f, 0.0f, 0.0f }; // Red
+            float v1[] = {  side / 2, -side / 2, -side / 2, 1.0f, 1.0f, 0.0f }; // Yellow
+            float v2[] = {  side / 2,  side / 2, -side / 2, 0.0f, 1.0f, 0.0f }; // Green
+            float v3[] = { -side / 2,  side / 2, -side / 2, 0.0f, 0.0f, 1.0f }; // Blue
+            float v4[] = { -side / 2, -side / 2,  side / 2, 1.0f, 1.0f, 0.0f }; // Yellow
+            float v5[] = {  side / 2, -side / 2,  side / 2, 0.0f, 1.0f, 0.0f }; // Green
+            float v6[] = {  side / 2,  side / 2,  side / 2, 0.0f, 0.0f, 1.0f }; // Blue
+            float v7[] = { -side / 2,  side / 2,  side / 2, 1.0f, 0.0f, 0.0f }; // Red
 
             // Define the cube using two triangles for each face
             // Front face
@@ -103,6 +103,7 @@ namespace VenusEngine
 			std::shared_ptr<Mesh> cube_mesh_ptr(new Mesh());
             cube_mesh_ptr->addGeometry(cubeVertices);
             cube_mesh_ptr->prepareVao();
+            cube_mesh_ptr->getTransform().m_position.x += 7.0f;
 			m_scene.add("Cube", cube_mesh_ptr);
 
             m_framebuffer.bind();
@@ -130,8 +131,6 @@ namespace VenusEngine
             {
                 std::cout << "[ " << pos.first << ", " << pos.second << " ]\n";
             }
-            // Move cube
-            m_scene.getMesh("Cube")->getTransform().m_position += Vec3(-0.05f, 0.0f, 0.0f);
 		}
 
 		void draw()
@@ -148,7 +147,7 @@ namespace VenusEngine
                 m_scene.setActiveMesh(selectedMeshName);
             }
             // Draw active mesh window
-            Gui::activeMeshWindow(m_scene.activeMeshName());
+            Gui::activeMeshWindow(m_scene);
             // Clear buffer bit
 			m_renderer.clearBuffer();
             // Render camera
@@ -167,8 +166,8 @@ namespace VenusEngine
 		Camera     m_camera;
 		Scene      m_scene;
 
-        Framebuffer m_framebuffer;
-        Texture     m_texture;
+        Framebuffer             m_framebuffer;
+        Texture                 m_texture;
         std::pair<float, float> m_viewportSize;
 	};
 }
