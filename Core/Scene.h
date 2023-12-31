@@ -113,6 +113,18 @@ namespace VenusEngine
 			return m_meshes[m_activeMeshName];
 		}
 
+		void changeActiveMeshName(std::string const& newActiveMeshName)
+		{
+			if (!hasActiveMesh())
+			{
+				return;
+			}
+			auto activeMesh = getActiveMesh();
+			remove(m_activeMeshName);
+			add(newActiveMeshName, activeMesh);
+			setActiveMesh(newActiveMeshName);
+		}
+
 		std::string const& activeMeshName() const
 		{
 			return m_activeMeshName;
@@ -127,6 +139,11 @@ namespace VenusEngine
 				names.push_back(iter->first);
 			}
 			return names;
+		}
+
+		std::size_t size() const
+		{
+			return m_meshes.size();
 		}
 
 	private:

@@ -9,6 +9,7 @@ namespace VenusEngine
 {
 	class Geometry
 	{
+	public:
 		// A triangle consists of exactly 3 Vec3s (the coordinates of the vertices).
 		using Triangle = std::array<Vec3, 3>;
 

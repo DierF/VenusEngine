@@ -79,15 +79,6 @@ namespace VenusEngine
             return escapePressed;
         }
 
-        std::pair<float, float> updateActiveMesh()
-        {
-            if (MouseBuffer::getPressedLeftButton() == false)
-            {
-                return {};
-            }
-            return MouseBuffer::getPressedLeftButtonPos();
-        }
-
 	private:
 		std::pair<float, float> m_lastMousePosition;
 		bool                    m_mouseRightButtonPressed;

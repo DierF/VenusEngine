@@ -9,6 +9,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "Core/Scene.h"
+#include "Core/Geometry.h"
 #include "Editor/Window.h"
 #include "Math/Transform.h"
 
@@ -142,15 +143,28 @@ namespace VenusEngine
 		static void activeMeshWindow(Scene& scene)
 		{
 			ImGui::Begin("Active Mesh");
+
 			if (scene.hasActiveMesh())
 			{
-				ImGui::Text("Name: %s", scene.activeMeshName().c_str());
+				ImGui::Text("Name:");
+				char buffer[32];
+				std::strncpy(buffer, scene.activeMeshName().c_str(), sizeof(buffer));
+				if (ImGui::InputText("##", buffer, sizeof(buffer)))
+				{
+					scene.changeActiveMeshName(buffer);
+				}
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 				Transform& transform = scene.getActiveMesh()->getTransform();
 				ImGui::Text("Translation:");
 				ImGui::SliderFloat("X##TranslateX", &transform.m_position.x, -100.0f, 100.0f);
 				ImGui::SliderFloat("Y##TranslateY", &transform.m_position.y, -100.0f, 100.0f);
 				ImGui::SliderFloat("Z##TranslateZ", &transform.m_position.z, -100.0f, 100.0f);
+				if (ImGui::Button("Reset Translation"))
+				{
+					transform.m_position = Vec3::ZERO;
+				}
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 			
 				ImGui::Text("Rotation:");
 				Radian deltaAngle(0.1f);
@@ -197,6 +211,7 @@ namespace VenusEngine
 				{
 					transform.m_rotation = Quaternion::IDENTITY;
 				}
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				
 				ImGui::Text("Scale:");
 				float scale = transform.m_scale.x;
@@ -204,6 +219,11 @@ namespace VenusEngine
 				transform.m_scale.x = scale;
 				transform.m_scale.y = scale;
 				transform.m_scale.z = scale;
+				if (ImGui::Button("Reset Scale"))
+				{
+					transform.m_scale = Vec3::UNIT_SCALE;
+				}
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 				if (ImGui::Button(("Delete##Delete")))
 				{
@@ -214,15 +234,33 @@ namespace VenusEngine
 			ImGui::End();
 		}
 
-		static std::pair<bool, std::string> allMeshWindow(std::string const& activeMeshName, std::vector<std::string> const& allMeshNames)
+		static std::pair<bool, std::string> allMeshWindow(Scene& scene)
 		{
 			std::string selectedMeshName;
 			ImGui::Begin("All Meshes");
-			// Display a list of mesh names
-			for (auto const& meshName : allMeshNames)
+			if (ImGui::Button("Add Cube"))
+			{
+				int index = 0;
+				auto name = std::string("Cube#");
+				while (scene.hasMesh(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				auto faces = Geometry::buildCube();
+				auto geometry = Geometry::dataWithFaceColors(faces, Geometry::generateRandomFaceColors(faces));
+				std::shared_ptr<Mesh> cube_mesh_ptr(new Mesh());
+				cube_mesh_ptr->addGeometry(geometry);
+				cube_mesh_ptr->prepareVao();
+				scene.add(name, cube_mesh_ptr);
+			}
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+			ImGui::Text("Meshes:");
+			for (auto const& meshName : scene.allMeshNames())
 			{
 				// Use a different color for the active mesh
-				if (meshName == activeMeshName)
+				if (meshName == scene.activeMeshName())
 				{
 					ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s (Active)", meshName.c_str());
 				}
@@ -236,28 +274,22 @@ namespace VenusEngine
 				}
 			}
 			ImGui::End();
-			return { !selectedMeshName.empty(), selectedMeshName};
+			return { !selectedMeshName.empty(), selectedMeshName };
 		}
 
-		static std::pair<float, float> viewportWindow(uint64_t textureId)
+		static std::pair<bool, std::pair<float, float>> viewportWindow(uint64_t textureId)
 		{
 			ImGui::Begin("Viewport");
-			auto viewportMinRegion = ImGui::GetWindowContentRegionMin();
-			auto viewportMaxRegion = ImGui::GetWindowContentRegionMax();
-			auto viewportOffset    = ImGui::GetWindowPos();
-			//ImVec2 viewportBounds[2];
-			//viewportBounds[0] = { viewportMinRegion.x + viewportOffset.x, viewportMinRegion.y + viewportOffset.y };
-			//viewportBounds[1] = { viewportMaxRegion.x + viewportOffset.x, viewportMaxRegion.y + viewportOffset.y };
-
-			//bool viewportFocused = ImGui::IsWindowFocused();
-			//bool viewportHovered = ImGui::IsWindowHovered();
 
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-			ImVec2 viewportSize    = { viewportPanelSize.x, viewportPanelSize.y };
-
+			ImVec2 viewportSize      = { viewportPanelSize.x, viewportPanelSize.y };
 			ImGui::Image(reinterpret_cast<void*>(textureId), ImVec2{ viewportSize.x, viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
+			
+			bool focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
+
 			ImGui::End();
-			return { viewportSize.x, viewportSize.y };
+
+			return { focused, { viewportSize.x, viewportSize.y } };
 		}
 	};
 }
