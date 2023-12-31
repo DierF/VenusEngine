@@ -137,7 +137,7 @@ namespace VenusEngine
 		{
             m_framebuffer.bind();
             m_texture.bind();
-            m_texture.image2D(m_viewportSize.first, m_viewportSize.second);
+            m_texture.image2D(GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second));
             m_texture.unbind();
 
             // Draw all meshes window

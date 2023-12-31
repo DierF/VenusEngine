@@ -153,10 +153,50 @@ namespace VenusEngine
 				ImGui::SliderFloat("Z##TranslateZ", &transform.m_position.z, -100.0f, 100.0f);
 			
 				ImGui::Text("Rotation:");
-				ImGui::SliderFloat("X##RotationX", &transform.m_rotation.x, -1.0f, 1.0f);
-				ImGui::SliderFloat("Y##RotationY", &transform.m_rotation.y, -1.0f, 1.0f);
-				ImGui::SliderFloat("Z##RotationZ", &transform.m_rotation.z, -1.0f, 1.0f);
-				ImGui::SliderFloat("W##RotationW", &transform.m_rotation.w, -1.0f, 1.0f);
+				Radian deltaAngle(0.1f);
+				Radian angleX(0.0f);
+				ImGui::Button("X--");
+				if (ImGui::IsItemActive())
+				{
+					angleX -= deltaAngle;
+				}
+				ImGui::SameLine();
+				ImGui::Button("X++");
+				if (ImGui::IsItemActive())
+				{
+					angleX += deltaAngle;
+				}
+				transform.m_rotation = Quaternion(angleX, Vec3::UNIT_X) * transform.m_rotation;
+				Radian angleY(0.0f);
+				ImGui::Button("Y--");
+				if (ImGui::IsItemActive())
+				{
+					angleY -= deltaAngle;
+				}
+				ImGui::SameLine();
+				ImGui::Button("Y++");
+				if (ImGui::IsItemActive())
+				{
+					angleY += deltaAngle;
+				}
+				transform.m_rotation = Quaternion(angleY, Vec3::UNIT_Y) * transform.m_rotation;
+				Radian angleZ(0.0f);
+				ImGui::Button("Z--");
+				if (ImGui::IsItemActive())
+				{
+					angleZ -= deltaAngle;
+				}
+				ImGui::SameLine();
+				ImGui::Button("Z++");
+				if (ImGui::IsItemActive())
+				{
+					angleZ += deltaAngle;
+				}
+				transform.m_rotation = Quaternion(angleZ, Vec3::UNIT_Z) * transform.m_rotation;
+				if (ImGui::Button("Reset Rotation"))
+				{
+					transform.m_rotation = Quaternion::IDENTITY;
+				}
 				
 				ImGui::Text("Scale:");
 				float scale = transform.m_scale.x;
@@ -165,7 +205,7 @@ namespace VenusEngine
 				transform.m_scale.y = scale;
 				transform.m_scale.z = scale;
 
-				if (ImGui::Button(("Delete##Mesh")))
+				if (ImGui::Button(("Delete##Delete")))
 				{
 					scene.remove(scene.activeMeshName());
 				}
