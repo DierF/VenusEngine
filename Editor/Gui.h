@@ -279,6 +279,7 @@ namespace VenusEngine
 
 		static std::pair<bool, std::pair<float, float>> viewportWindow(uint64_t textureId)
 		{
+			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::Begin("Viewport");
 
 			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
@@ -288,6 +289,7 @@ namespace VenusEngine
 			bool focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
 			ImGui::End();
+			ImGui::PopStyleVar();
 
 			return { focused, { viewportSize.x, viewportSize.y } };
 		}
