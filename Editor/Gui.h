@@ -167,7 +167,7 @@ namespace VenusEngine
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 			
 				ImGui::Text("Rotation:");
-				Radian deltaAngle(0.1f);
+				Radian deltaAngle(0.05f);
 				Radian angleX(0.0f);
 				ImGui::Button("X--");
 				if (ImGui::IsItemActive())
@@ -248,7 +248,8 @@ namespace VenusEngine
 				}
 				name += std::to_string(index);
 				auto faces = Geometry::buildCube();
-				auto geometry = Geometry::dataWithFaceColors(faces, Geometry::generateRandomFaceColors(faces));
+				// auto geometry = Geometry::dataWithFaceColors(faces, Geometry::generateRandomFaceColors(faces));
+				auto geometry = Geometry::dataWithFaceNormals(faces, Geometry::computeFaceNormals(faces));
 				std::shared_ptr<Mesh> cube_mesh_ptr(new Mesh());
 				cube_mesh_ptr->addGeometry(geometry);
 				cube_mesh_ptr->prepareVao();

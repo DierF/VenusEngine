@@ -9,10 +9,10 @@ namespace VenusEngine
 	class Renderer
 	{
 	public:
-		Renderer()
+		Renderer(std::string const& vertexShaderPath, std::string const& fragmentShaderPath)
 		{
-			m_shaderProgram.createVertexShader("../Render/Vec3.vert");
-			m_shaderProgram.createFragmentShader("../Render/Vec3.frag");
+			m_shaderProgram.createVertexShader(vertexShaderPath);
+			m_shaderProgram.createFragmentShader(fragmentShaderPath);
 			m_shaderProgram.link();
 		}
 

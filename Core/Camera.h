@@ -86,6 +86,11 @@ namespace VenusEngine
 			return Math::makePerspectiveMatrix(Radian(Math::degreesToRadians(m_verticalFieldOfViewDegrees)), m_aspectRatio, m_nearClipPlaneDistance, m_farClipPlaneDistance);
 		}
 
+		Mat4 getViewProjectionMatrix()
+		{
+			return getProjectionMatrix() * getViewMatrix();
+		}
+
 		/// \brief Resets the camera to its original pose.
 		/// \post The position (eye point) is the same as what had been specified in
 		///   the constructor.
@@ -105,7 +110,10 @@ namespace VenusEngine
 		{
 			shaderProgram.enable();
 
-			shaderProgram.setUniformMatrix("uProjection", getProjectionMatrix());
+			shaderProgram.setUniformMat4("uView"      , getViewMatrix());
+			shaderProgram.setUniformMat4("uProjection", getProjectionMatrix());
+
+			shaderProgram.setUniformVec3("uEyePosition", m_position);
 
 			shaderProgram.disable();
 		}

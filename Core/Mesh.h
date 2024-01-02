@@ -87,16 +87,14 @@ namespace VenusEngine
 		/// \brief Draws this Mesh in OpenGL.
 		/// \param[in] shaderProgram A pointer to the ShaderProgram that should
 		///   be used.
-		/// \param[in] viewMatrix The view matrix that should be used by itself as
-		///   the model-view matrix(there is not yet any model part).
 		/// \pre This Mesh has been prepared.
 		/// \post While the ShaderProgram was enabled, the viewMatrix has been set as
 		///   the "uModelView" uniform matrix and the geometry has been drawn.
-		void draw(ShaderProgram& shaderProgram, Mat4 const& viewMatrix)
+		void draw(ShaderProgram& shaderProgram)
 		{
 			shaderProgram.enable();
 
-			shaderProgram.setUniformMatrix("uModelView", viewMatrix * m_transform.getMatrix());
+			shaderProgram.setUniformMat4("uWorld", m_transform.getMatrix());
 
 			m_vertexArray.bind();
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 6);

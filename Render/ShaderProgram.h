@@ -46,9 +46,27 @@ namespace VenusEngine
 			return glGetUniformLocation(m_programId, uniformName.c_str());
 		}
 
-		void setUniformMatrix(std::string const& uniform, Mat4 const& value)
+		void setUniformInt(std::string const& name, int value) const
 		{
-			GLint location = getUniformLocation(uniform);
+			GLint location = getUniformLocation(name);
+			glUniform1i(location, value);
+		}
+
+		void setUniformFloat(std::string const& name, float value) const
+		{
+			GLint location = getUniformLocation(name);
+			glUniform1f(location, value);
+		}
+
+		void setUniformVec3(std::string const& name, Vec3 const& value) const
+		{
+			GLint location = getUniformLocation(name);
+			glUniform3fv(location, 1, value.ptr());
+		}
+
+		void setUniformMat4(std::string const& name, Mat4 const& value) const
+		{
+			GLint location = getUniformLocation(name);
 			float data[16];
 			value.toData(data);
 			glUniformMatrix4fv(location, 1, GL_TRUE, data);
