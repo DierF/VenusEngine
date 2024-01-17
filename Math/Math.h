@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <limits>
 #include <cmath>
+#include <cstdint>
 
 namespace VenusEngine
 {
@@ -52,8 +53,8 @@ namespace Math
     float const LOG2 = log(2.0f);
     float const EPSILON = 1e-6f;
 
-    float const Float_EPSILON = FLT_EPSILON;
-    float const Double_EPSILON = DBL_EPSILON;
+    float const Float_EPSILON = Float_EPSILON;
+    float const Double_EPSILON = EPSILON;
 
     float abs(float value);
     bool  isNan(float f);

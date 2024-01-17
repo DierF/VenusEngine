@@ -32,7 +32,7 @@ namespace VenusEngine
 			return true;
 		}
 
-		bool remove(std::string const& name)
+		void remove(std::string const& name)
 		{
 			m_lightSources.erase(name);
 		}
