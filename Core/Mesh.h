@@ -6,6 +6,7 @@
 #include "Render/VertexArray.h"
 #include "Render/VertexBuffer.h"
 #include "Math/MathHeaders.h"
+#include "Core/ID.h"
 
 namespace VenusEngine
 {
@@ -17,7 +18,9 @@ namespace VenusEngine
 		///   to make OpenGL calls.
 		/// \post A unique VAO and VBO have been generated for this Mesh and stored
 		///   for later use.
-		Mesh() = default;
+		Mesh() : m_id(ID::generateID())
+		{
+		}
 
 		/// \brief Destructs this Mesh.
 		/// \post The VAO and VBO associated with this Mesh have been deleted.
@@ -110,6 +113,11 @@ namespace VenusEngine
 			return m_transform;
 		}
 
+		unsigned getID() const
+		{
+			return m_id;
+		}
+
 	private:
 		/// \brief Enables VAO attributes.
 		/// \pre This Mesh's VAO has been bound.
@@ -131,5 +139,7 @@ namespace VenusEngine
 		Transform                 m_transform;
 		VertexArray               m_vertexArray;
 		VertexBuffer              m_vertexBuffer;
+
+		unsigned m_id;
 	};
 }

@@ -153,6 +153,11 @@ namespace VenusEngine
 				{
 					scene.changeActiveMeshName(buffer);
 				}
+
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+				ImGui::Text((std::string("ID: ") + std::to_string(scene.getActiveMesh()->getID())).c_str());
+
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 				Transform& transform = scene.getActiveMesh()->getTransform();
@@ -164,6 +169,7 @@ namespace VenusEngine
 				{
 					transform.m_position = Vec3::ZERO;
 				}
+
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 			
 				ImGui::Text("Rotation:");
@@ -211,6 +217,7 @@ namespace VenusEngine
 				{
 					transform.m_rotation = Quaternion::IDENTITY;
 				}
+
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				
 				ImGui::Text("Scale:");
@@ -223,6 +230,7 @@ namespace VenusEngine
 				{
 					transform.m_scale = Vec3::UNIT_SCALE;
 				}
+
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 				if (ImGui::Button(("Delete##Delete")))
