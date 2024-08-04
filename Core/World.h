@@ -5,6 +5,7 @@
 #include "Core/SceneLight.h"
 #include "Core/Camera.h"
 #include "Core/Controller.h"
+#include "Core/MouseBuffer.h"
 #include "Render/Renderer.h"
 #include "Render/Framebuffer.h"
 #include "Render/Texture.h"
@@ -29,11 +30,25 @@ namespace VenusEngine
             m_sceneLight.add("Light", directional_light_ptr);
 
             m_framebuffer.bind();
+
             m_texture.bind();
-            m_texture.image2D(Window::get().getWidth(), Window::get().getHeight());
-            m_texture.filter();
+            m_texture.image2D(GL_RGBA, Window::get().getWidth(), Window::get().getHeight(), GL_RGBA, GL_UNSIGNED_BYTE);
+            m_texture.filter(GL_LINEAR);
             m_texture.unbind();
-            m_framebuffer.texture(m_texture.id());
+            m_framebuffer.texture2D(GL_COLOR_ATTACHMENT0, m_texture.id());
+
+            m_IDTexture.bind();
+            m_IDTexture.image2D(GL_R32I, Window::get().getWidth(), Window::get().getHeight(), GL_RED_INTEGER, GL_INT);
+            m_IDTexture.filter(GL_NEAREST);
+            m_IDTexture.unbind();
+            m_framebuffer.texture2D(GL_COLOR_ATTACHMENT1, m_IDTexture.id());
+
+            GLenum drawBuffers[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+            m_renderer.drawBuffers(2, drawBuffers);
+
+            glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+            m_framebuffer.unbind();
 		}
 
 		void tick(float deltaTime)
@@ -43,9 +58,10 @@ namespace VenusEngine
             {
                 return;
             }
-            // Tick camera
+            // Tick viewport objects
             if (m_viewportFocused)
             {
+                // tick camera
                 m_controller.moveCamera(m_camera, deltaTime * 0.01f);
                 m_controller.turnCamera(m_camera);
             }
@@ -55,16 +71,43 @@ namespace VenusEngine
 		void draw()
 		{
             m_framebuffer.bind();
+
+            // update active Mesh by selection
+            if (m_viewportFocused && MouseBuffer::getPressedLeftButton())
+            {
+                auto [clickedX, clickedY] = MouseBuffer::getPressedLeftButtonPos();
+                // Window coordinate to viewport coordinate
+                clickedX -= m_viewportPos.first;
+                clickedY -= m_viewportPos.second;
+                // Exclude tarBar size
+                clickedY += m_tabBarHeight;
+                // Invert y coordinate(viewport coordinate to OpenGL coordinate)
+                int viewport[4];
+                glGetIntegerv(GL_VIEWPORT, viewport);
+                clickedY = viewport[3] - clickedY;
+                int id = -1;
+                glReadPixels(clickedX, clickedY, 1, 1, GL_RED_INTEGER, GL_INT, &id);
+                if (id != -1)
+                {
+                    m_scene.setActiveMeshByID(id);
+                }
+            }
+            
             m_texture.bind();
-            m_texture.image2D(GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second));
+            m_texture.image2D(GL_RGBA, GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second), GL_RGBA, GL_UNSIGNED_BYTE);
             m_texture.unbind();
 
+            m_IDTexture.bind();
+            m_IDTexture.image2D(GL_R32I, GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second), GL_RED_INTEGER, GL_INT);
+            m_IDTexture.unbind();
+
             // Draw all meshes window
-            auto const& [selected, selectedMeshName] = Gui::allMeshWindow(m_scene);
-            if (selected)
+            auto const& selectedMeshName = Gui::allMeshWindow(m_scene);
+            if (!selectedMeshName.empty())
             {
                 m_scene.setActiveMesh(selectedMeshName);
             }
+
             // Draw active mesh window
             Gui::activeMeshWindow(m_scene);
             // Clear buffer bit
@@ -76,9 +119,11 @@ namespace VenusEngine
             // Render Mesh
 			m_scene.draw(m_renderer.getShaderProgram());
             // Draw viewport window
-            auto [viewportFocused, viewportSize] = Gui::viewportWindow(m_texture.id());
+            auto [viewportFocused, viewportSize, viewportPos, tabBarHeight] = Gui::viewportWindow(m_texture.id());
             m_viewportFocused = viewportFocused;
             m_viewportSize    = viewportSize;
+            m_viewportPos     = viewportPos;
+            m_tabBarHeight    = tabBarHeight;
 
             m_framebuffer.unbind();
 		}
@@ -92,7 +137,11 @@ namespace VenusEngine
 
         Framebuffer             m_framebuffer;
         Texture                 m_texture;
-        std::pair<float, float> m_viewportSize;
+        Texture                 m_IDTexture;
+
         bool                    m_viewportFocused;
+        std::pair<float, float> m_viewportSize;
+        std::pair<float, float> m_viewportPos;
+        float                   m_tabBarHeight;
 	};
 }

@@ -98,6 +98,7 @@ namespace VenusEngine
 			shaderProgram.enable();
 
 			shaderProgram.setUniformMat4("uWorld", m_transform.getMatrix());
+			shaderProgram.setUniformInt("objectID", m_id);
 
 			m_vertexArray.bind();
 			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 6);
@@ -140,6 +141,6 @@ namespace VenusEngine
 		VertexArray               m_vertexArray;
 		VertexBuffer              m_vertexBuffer;
 
-		unsigned m_id;
+		int m_id;
 	};
 }

@@ -28,15 +28,15 @@ namespace VenusEngine
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
-		void image2D(GLsizei width, GLsizei height)
+		void image2D(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type)
 		{
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+			glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, nullptr);
 		}
 
-		void filter()
+		void filter(GLint param)
 		{
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, param);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, param);
 		}
 
 		GLuint id()

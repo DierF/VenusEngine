@@ -5,6 +5,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
+#include <imgui_internal.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
@@ -242,14 +243,14 @@ namespace VenusEngine
 			ImGui::End();
 		}
 
-		static std::pair<bool, std::string> allMeshWindow(Scene& scene)
+		static std::string allMeshWindow(Scene& scene)
 		{
 			std::string selectedMeshName;
 			ImGui::Begin("All Meshes");
 			if (ImGui::Button("Add Cube"))
 			{
-				int index = 0;
-				auto name = std::string("Cube#");
+				int index = 1;
+				auto name = std::string("Cube");
 				while (scene.hasMesh(name + std::to_string(index)))
 				{
 					++index;
@@ -283,24 +284,41 @@ namespace VenusEngine
 				}
 			}
 			ImGui::End();
-			return { !selectedMeshName.empty(), selectedMeshName };
+			return selectedMeshName;
 		}
 
-		static std::pair<bool, std::pair<float, float>> viewportWindow(uint64_t textureId)
+		static std::tuple<bool, std::pair<float, float>, std::pair<float, float>, float> viewportWindow(uint64_t textureId)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::Begin("Viewport");
 
-			ImVec2 viewportPanelSize = ImGui::GetContentRegionAvail();
-			ImVec2 viewportSize      = { viewportPanelSize.x, viewportPanelSize.y };
+			ImVec2 viewportSize = ImGui::GetContentRegionAvail();
 			ImGui::Image(reinterpret_cast<void*>(textureId), ImVec2{ viewportSize.x, viewportSize.y }, ImVec2{ 0, 1 }, ImVec2{ 1, 0 });
 			
 			bool focused = ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows);
 
+			ImVec2 viewportPos = ImGui::GetWindowPos();
+
+			// Note: This is to dynamically check tab bar size.
+			//			But for unknown reason, tab bar size in always included when selecting.
+			//// Calculate the tab bar height
+			//float tabBarHeight = 0.0f;
+			//ImGuiWindow* window = ImGui::GetCurrentWindow();
+			//if (window->DockNode)
+			//{
+			//	ImRect windowRect = window->Rect();
+			//	ImRect contentRect = window->ContentRegionRect;
+			//	float windowContentHeight = contentRect.GetHeight();
+			//	tabBarHeight = windowRect.GetHeight() - windowContentHeight;
+			//}
+
+			float tabBarHeight = 19.0f;
+
 			ImGui::End();
 			ImGui::PopStyleVar();
 
-			return { focused, { viewportSize.x, viewportSize.y } };
+			// the size and pos do not include the title bar of the window
+			return { focused, { viewportSize.x, viewportSize.y }, { viewportPos.x, viewportPos.y }, tabBarHeight };
 		}
 	};
 }

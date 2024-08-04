@@ -5,9 +5,9 @@ namespace VenusEngine
 	class ID
 	{
 	public:
-		static unsigned generateID()
+		static int generateID()
 		{
-			static unsigned currentID = 0;
+			static int currentID = 1;
 			return currentID++;
 		}
 	};

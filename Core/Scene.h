@@ -100,6 +100,19 @@ namespace VenusEngine
 			m_activeMeshName = activeMeshName;
 		}
 
+		void setActiveMeshByID(int id)
+		{
+			for (auto const& [name, mesh] : m_meshes)
+			{
+				if (mesh->getID() == id)
+				{
+					m_activeMeshName = name;
+					return;
+				}
+			}
+			m_activeMeshName.clear();
+		}
+
 		bool hasActiveMesh()
 		{
 			return !m_activeMeshName.empty();

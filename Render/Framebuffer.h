@@ -28,9 +28,9 @@ namespace VenusEngine
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		void texture(GLuint textureId)
+		void texture2D(GLenum attachment, GLuint textureId)
 		{
-			glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, textureId, 0);
+			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
 		}
 
 	private:

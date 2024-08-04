@@ -18,6 +18,11 @@ namespace VenusEngine
 
 		~Renderer() = default;
 
+		void drawBuffers(GLsizei size, GLenum const* buffers)
+		{
+			glDrawBuffers(size, buffers);
+		}
+
 		void clearBuffer()
 		{
 			glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
