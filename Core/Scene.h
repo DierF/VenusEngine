@@ -113,7 +113,7 @@ namespace VenusEngine
 			m_activeMeshName.clear();
 		}
 
-		bool hasActiveMesh()
+		bool hasActiveMesh() const
 		{
 			return !m_activeMeshName.empty();
 		}

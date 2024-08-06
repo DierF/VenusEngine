@@ -6,11 +6,13 @@
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_internal.h>
+#include <ImGuizmo.h>
 #include <backends/imgui_impl_glfw.h>
 #include <backends/imgui_impl_opengl3.h>
 
 #include "Core/Scene.h"
 #include "Core/Geometry.h"
+#include "Core/KeyBuffer.h"
 #include "Editor/Window.h"
 #include "Math/Transform.h"
 
@@ -48,6 +50,8 @@ namespace VenusEngine
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui_ImplGlfw_NewFrame();
 			ImGui::NewFrame();
+
+			ImGuizmo::BeginFrame();
 
 			static bool dockspaceOpen = true;
 		}
@@ -139,6 +143,60 @@ namespace VenusEngine
 		static void endDockspace()
 		{
 			ImGui::End();
+		}
+
+		static void gizmo(std::pair<float, float> viewportPos, std::pair<float, float> viewportSize, float const* view, float const* projection, float* transform)
+		{
+			static enum Mode
+			{
+				NONE = 0, TRANSLATE, ROTATE, SCALE
+			} mode = Mode::NONE;
+
+			ImGuizmo::SetDrawlist();
+			ImGuizmo::SetRect(viewportPos.first, viewportPos.second, viewportSize.first, viewportSize.second);
+
+			if (KeyBuffer::getPressedKey(GLFW_KEY_T))
+			{
+				mode = Mode::TRANSLATE;
+			}
+			if (KeyBuffer::getPressedKey(GLFW_KEY_E))
+			{
+				mode = Mode::ROTATE;
+			}
+			if (KeyBuffer::getPressedKey(GLFW_KEY_R))
+			{
+				mode = Mode::SCALE;
+			}
+			if (KeyBuffer::getPressedKey(GLFW_KEY_Q))
+			{
+				mode = Mode::NONE;
+			}
+
+			switch (mode)
+			{
+			case TRANSLATE:
+				ImGuizmo::Manipulate(view, projection, ImGuizmo::TRANSLATE, ImGuizmo::LOCAL, transform);
+				break;
+			case ROTATE:
+				ImGuizmo::Manipulate(view, projection, ImGuizmo::ROTATE, ImGuizmo::LOCAL, transform);
+				break;
+			case SCALE:
+				ImGuizmo::Manipulate(view, projection, ImGuizmo::SCALE, ImGuizmo::LOCAL, transform);
+				break;
+			case NONE:
+			default:
+				break;
+			}
+		}
+
+		static bool gizmoIsUsing()
+		{
+			return ImGuizmo::IsUsing();
+		}
+
+		static bool gizmoIsOver()
+		{
+			return ImGuizmo::IsOver();
 		}
 
 		static void activeMeshWindow(Scene& scene)
@@ -287,7 +345,7 @@ namespace VenusEngine
 			return selectedMeshName;
 		}
 
-		static std::tuple<bool, std::pair<float, float>, std::pair<float, float>, float> viewportWindow(uint64_t textureId)
+		static std::tuple<bool, std::pair<float, float>, std::pair<float, float>, float> viewportWindow(Scene const& scene, uint64_t textureId, float const* view, float const* projection, float* transform)
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 			ImGui::Begin("Viewport");
@@ -299,25 +357,26 @@ namespace VenusEngine
 
 			ImVec2 viewportPos = ImGui::GetWindowPos();
 
-			// Note: This is to dynamically check tab bar size.
-			//			But for unknown reason, tab bar size in always included when selecting.
-			//// Calculate the tab bar height
-			//float tabBarHeight = 0.0f;
-			//ImGuiWindow* window = ImGui::GetCurrentWindow();
-			//if (window->DockNode)
-			//{
-			//	ImRect windowRect = window->Rect();
-			//	ImRect contentRect = window->ContentRegionRect;
-			//	float windowContentHeight = contentRect.GetHeight();
-			//	tabBarHeight = windowRect.GetHeight() - windowContentHeight;
-			//}
+			// Calculate the tab bar height
+			float tabBarHeight = 0.0f;
+			ImGuiWindow* window = ImGui::GetCurrentWindow();
+			if (window->DockNode)
+			{
+				ImRect windowRect = window->Rect();
+				ImRect contentRect = window->ContentRegionRect;
+				float windowContentHeight = contentRect.GetHeight();
+				tabBarHeight = windowRect.GetHeight() - windowContentHeight;
+			}
 
-			float tabBarHeight = 19.0f;
+			if (scene.hasActiveMesh())
+			{
+				gizmo({ viewportPos.x, viewportPos.y }, { viewportSize.x, viewportSize.y }, view, projection, transform);
+			}
 
 			ImGui::End();
 			ImGui::PopStyleVar();
 
-			// the size and pos do not include the title bar of the window
+			// the size and pos include the title bar of the window
 			return { focused, { viewportSize.x, viewportSize.y }, { viewportPos.x, viewportPos.y }, tabBarHeight };
 		}
 	};

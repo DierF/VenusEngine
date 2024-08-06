@@ -17,8 +17,8 @@ namespace VenusEngine
 	public:
 		World()
 			// : m_renderer("../Render/Vec3.vert", "../Render/Vec3.frag"),
-			: m_renderer("../Render/GeneralShader.vert", "../Render/Vec3.frag"),
-              m_camera(Vec3(0.0f, 0.0f, 15.0f), 0.0f, 0.0f, 0.1f, 1000.0f, 1200.0f / 900.0f, 45.0f)
+			: m_renderer("../Render/GeneralShader.vert", "../Render/GeneralShader.frag"),
+              m_camera(Vec3(0.0f, 0.0f, 10.0f), 0.0f, 0.0f, 0.1f, 100.0f, 1200.0f / 900.0f, 60.0f)
 		{
             // Diffuse intensity of the light source
             Vec3 diffuseIntensity(1.0f, 1.0f, 1.0f);
@@ -65,7 +65,7 @@ namespace VenusEngine
                 m_controller.moveCamera(m_camera, deltaTime * 0.01f);
                 m_controller.turnCamera(m_camera);
             }
-            m_camera.updateAspectRatio(static_cast<float>(Window::get().getWidth()) / Window::get().getHeight());
+            m_camera.updateAspectRatio(m_viewportSize.first / m_viewportSize.second);
 		}
 
 		void draw()
@@ -73,14 +73,14 @@ namespace VenusEngine
             m_framebuffer.bind();
 
             // update active Mesh by selection
-            if (m_viewportFocused && MouseBuffer::getPressedLeftButton())
+            if (m_viewportFocused && MouseBuffer::getPressedLeftButton() && !Gui::gizmoIsOver())
             {
                 auto [clickedX, clickedY] = MouseBuffer::getPressedLeftButtonPos();
                 // Window coordinate to viewport coordinate
                 clickedX -= m_viewportPos.first;
                 clickedY -= m_viewportPos.second;
-                // Exclude tarBar size
-                clickedY += m_tabBarHeight;
+                // Exclude tab bar size
+                clickedY -= m_tabBarHeight;
                 // Invert y coordinate(viewport coordinate to OpenGL coordinate)
                 int viewport[4];
                 glGetIntegerv(GL_VIEWPORT, viewport);
@@ -92,6 +92,9 @@ namespace VenusEngine
                     m_scene.setActiveMeshByID(id);
                 }
             }
+
+            // update glviewport pos and size
+            glViewport(0, m_tabBarHeight, m_viewportSize.first, m_viewportSize.second);
             
             m_texture.bind();
             m_texture.image2D(GL_RGBA, GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second), GL_RGBA, GL_UNSIGNED_BYTE);
@@ -118,12 +121,27 @@ namespace VenusEngine
             m_sceneLight.draw(m_renderer.getShaderProgram());
             // Render Mesh
 			m_scene.draw(m_renderer.getShaderProgram());
+
+            if (m_scene.hasActiveMesh())
+            {
+                m_camera.getViewMatrix().transpose().toData(m_temp_view);
+                m_camera.getProjectionMatrix().transpose().toData(m_temp_proj);
+                m_scene.getActiveMesh()->getTransform().getMatrix().transpose().toData(m_temp_trans);
+            }
+
             // Draw viewport window
-            auto [viewportFocused, viewportSize, viewportPos, tabBarHeight] = Gui::viewportWindow(m_texture.id());
+            auto [viewportFocused, viewportSize, viewportPos, tabBarHeight] =
+                Gui::viewportWindow(m_scene, m_texture.id(), m_temp_view, m_temp_proj, m_temp_trans);
             m_viewportFocused = viewportFocused;
             m_viewportSize    = viewportSize;
             m_viewportPos     = viewportPos;
             m_tabBarHeight    = tabBarHeight;
+
+            if (m_scene.hasActiveMesh())
+            {
+                Transform& trans = m_scene.getActiveMesh()->getTransform();
+                Mat4(m_temp_trans).transpose().decomposition(trans.m_position, trans.m_scale, trans.m_rotation);
+            }
 
             m_framebuffer.unbind();
 		}
@@ -143,5 +161,11 @@ namespace VenusEngine
         std::pair<float, float> m_viewportSize;
         std::pair<float, float> m_viewportPos;
         float                   m_tabBarHeight;
+
+    public:
+        // This is a temporary fix
+        float m_temp_view[16];
+        float m_temp_proj[16];
+        float m_temp_trans[16];
 	};
 }

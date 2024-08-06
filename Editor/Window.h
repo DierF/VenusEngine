@@ -46,7 +46,7 @@ namespace VenusEngine
 			glfwSetErrorCallback(glfw_error_callback);
 			glfwSetKeyCallback(m_window, keyCallback);
 			glfwSetMouseButtonCallback(m_window, mouseCallback);
-			glfwSetFramebufferSizeCallback(m_window, framebufferSizeCallback);
+			glfwSetFramebufferSizeCallback(m_window, windowSizeCallback);
 
 			if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 			{
@@ -130,9 +130,8 @@ namespace VenusEngine
 			}
 		}
 
-		static void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+		static void windowSizeCallback(GLFWwindow* window, int width, int height)
 		{
-			glViewport(0, 0, width, height);
 			s_instance->m_width  = width;
 			s_instance->m_height = height;
 		}

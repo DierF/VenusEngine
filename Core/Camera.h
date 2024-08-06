@@ -126,16 +126,26 @@ namespace VenusEngine
 	private:
 		void updateCameraOrientation()
 		{
+			// Create quaternions for pitch and yaw rotations
 			Quaternion pitchQuat = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_pitch)), Vec3(1.0f, 0.0f, 0.0f));
-			Quaternion yawQuat   = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_yaw)), Vec3(0.0f, 1.0f, 0.0f));
+			Quaternion yawQuat = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_yaw)), Vec3(0.0f, 1.0f, 0.0f));
+
+			// Combine the quaternions
 			Quaternion orientation = yawQuat * pitchQuat;
+
+			// Convert the quaternion to a rotation matrix
 			Mat4 rotationMatrix;
 			orientation.toRotationMatrix(rotationMatrix);
+
+			// Calculate the forward direction of the camera
 			Vec4 front = rotationMatrix * Vec4(0.0f, 0.0f, -1.0f, 0.0f);
 			m_frontDirection = Vec3(front.x, front.y, front.z);
 			m_frontDirection.normalise();
+
+			// Calculate the right and up directions
 			m_rightDirection = m_frontDirection.crossProduct(Vec3(0.0f, 1.0f, 0.0f));
 			m_rightDirection.normalise();
+
 			m_upDirection = m_rightDirection.crossProduct(m_frontDirection);
 			m_upDirection.normalise();
 		}
