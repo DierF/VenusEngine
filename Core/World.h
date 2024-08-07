@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Editor/Window.h"
+#include "Editor/Gui.h"
 #include "Core/Scene.h"
 #include "Core/SceneLight.h"
 #include "Core/Camera.h"
@@ -18,7 +19,7 @@ namespace VenusEngine
 		World()
 			// : m_renderer("../Render/Vec3.vert", "../Render/Vec3.frag"),
 			: m_renderer("../Render/GeneralShader.vert", "../Render/GeneralShader.frag"),
-              m_camera(Vec3(0.0f, 0.0f, 10.0f), 0.0f, 0.0f, 0.1f, 100.0f, 1200.0f / 900.0f, 60.0f)
+              m_camera(Vec3(0.0f, 0.0f, 10.0f), Vec3(), 0.1f, 100.0f, 1200.0f / 900.0f, 60.0f)
 		{
             // Diffuse intensity of the light source
             Vec3 diffuseIntensity(1.0f, 1.0f, 1.0f);
@@ -61,9 +62,7 @@ namespace VenusEngine
             // Tick viewport objects
             if (m_viewportFocused)
             {
-                // tick camera
-                m_controller.moveCamera(m_camera, deltaTime * 0.01f);
-                m_controller.turnCamera(m_camera);
+                m_controller.tickCamera(m_camera);
             }
             m_camera.updateAspectRatio(m_viewportSize.first / m_viewportSize.second);
 		}
@@ -75,7 +74,7 @@ namespace VenusEngine
             // update active Mesh by selection
             if (m_viewportFocused && MouseBuffer::getPressedLeftButton() && !Gui::gizmoIsOver())
             {
-                auto [clickedX, clickedY] = MouseBuffer::getPressedLeftButtonPos();
+                auto [clickedX, clickedY] = Input::GetMousePosition();
                 // Window coordinate to viewport coordinate
                 clickedX -= m_viewportPos.first;
                 clickedY -= m_viewportPos.second;

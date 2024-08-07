@@ -14,59 +14,51 @@ namespace VenusEngine
 	{
 	public:
 		Controller()
-			: m_lastMousePosition({ 0.0f, 0.0f }),
-			  m_mouseRightButtonPressed(false)
+			: m_lastMousePosition(Input::GetMousePosition())
 		{
 		}
 
-        ~Controller()
-        {
-        }
+        ~Controller() = default;
 
-        void moveCamera(Camera& camera, float distance)
+        void tickCamera(Camera& camera)
         {
-            if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT) || Input::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT))
-            {
-                distance *= 2.0f;
-            }
-            if (Input::IsKeyPressed(GLFW_KEY_W))
-            {
-                camera.moveFront(distance);
-            }
-            if (Input::IsKeyPressed(GLFW_KEY_A))
-            {
-                camera.moveRight(-distance);
-            }
-            if (Input::IsKeyPressed(GLFW_KEY_S))
-            {
-                camera.moveFront(-distance);
-            }
-            if (Input::IsKeyPressed(GLFW_KEY_D))
-            {
-                camera.moveRight(distance);
-            }
-        }
+            std::pair<float, float> currentPos = Input::GetMousePosition();
+            std::pair<float, float> deltaPos = { currentPos.first  - m_lastMousePosition.first,
+                                                 currentPos.second - m_lastMousePosition.second };
+            m_lastMousePosition = currentPos;
 
-        void turnCamera(Camera& camera)
-        {
-            float deltaYaw   = 0.0f;
-            float deltaPitch = 0.0f;
+            // tick camera if mouse right button being pressed
             if (Input::IsMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
             {
-                auto pos = Input::GetMousePosition();
-                if (m_mouseRightButtonPressed)
+                // move camera when shift + mouse right button
+                if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT) || Input::IsKeyPressed(GLFW_KEY_RIGHT_SHIFT))
                 {
-                    deltaYaw   = (pos.first  - m_lastMousePosition.first)  * 0.05f;
-                    deltaPitch = (pos.second - m_lastMousePosition.second) * 0.05f;
+                    moveCamera(camera, deltaPos);
                 }
-                m_mouseRightButtonPressed = true;
-                m_lastMousePosition = pos;
+                else
+                {
+                    turnCamera(camera, deltaPos);
+                }
             }
-            else
+
+            // Zoom camera
+            float ScrollDelta = MouseBuffer::getScrolledDelta();
+            if (ScrollDelta != 0.0f)
             {
-                m_mouseRightButtonPressed = false;
+                camera.zoom(-ScrollDelta);
             }
-            camera.moveYawAndPitch(deltaYaw, deltaPitch);
+        }
+
+        void moveCamera(Camera& camera, std::pair<float, float> deltaPos)
+        {
+            camera.moveRight(-deltaPos.first * 0.01f);
+            camera.moveUp(deltaPos.second * 0.01f);
+        }
+
+        void turnCamera(Camera& camera, std::pair<float, float> deltaPos)
+        {
+            camera.rotateAroundHorizontally(-deltaPos.first);
+            camera.rotateAroundVertically(-deltaPos.second);
         }
 
         bool shouldExitWorld()
@@ -81,6 +73,5 @@ namespace VenusEngine
 
 	private:
 		std::pair<float, float> m_lastMousePosition;
-		bool                    m_mouseRightButtonPressed;
 	};
 }

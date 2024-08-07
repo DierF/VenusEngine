@@ -46,6 +46,7 @@ namespace VenusEngine
 			glfwSetErrorCallback(glfw_error_callback);
 			glfwSetKeyCallback(m_window, keyCallback);
 			glfwSetMouseButtonCallback(m_window, mouseCallback);
+			glfwSetScrollCallback(m_window, scroll_callback);
 			glfwSetFramebufferSizeCallback(m_window, windowSizeCallback);
 
 			if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
@@ -122,12 +123,16 @@ namespace VenusEngine
 		{
 			if (button == GLFW_MOUSE_BUTTON_LEFT && action == GLFW_PRESS)
 			{
-				double xpos, ypos;
-				glfwGetCursorPos(window, &xpos, &ypos);
 				s_instance->m_mouseLeftButtonPressed = true;
-				s_instance->m_mousePos.first = float(xpos);
-				s_instance->m_mousePos.second = float(ypos);
 			}
+		}
+
+		// Scroll callback function
+		static void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+		{
+			// xoffset: horizontal scroll offset (usually 0 for mouse wheel)
+			// yoffset: vertical scroll offset (amount scrolled)
+			s_instance->m_mouseScrollDelta = yoffset;
 		}
 
 		static void windowSizeCallback(GLFWwindow* window, int width, int height)
@@ -143,8 +148,9 @@ namespace VenusEngine
 
 		bool m_keyWasPressed[GLFW_KEY_LAST + 1];
 
-		bool m_mouseLeftButtonPressed;
-		std::pair<float, float> m_mousePos;
+		bool m_mouseLeftButtonPressed = false;
+
+		float m_mouseScrollDelta = 0.0f;
 
 	public:
 		static Window& get()

@@ -155,7 +155,7 @@ namespace VenusEngine
 			ImGuizmo::SetDrawlist();
 			ImGuizmo::SetRect(viewportPos.first, viewportPos.second, viewportSize.first, viewportSize.second);
 
-			if (KeyBuffer::getPressedKey(GLFW_KEY_T))
+			if (KeyBuffer::getPressedKey(GLFW_KEY_W))
 			{
 				mode = Mode::TRANSLATE;
 			}

@@ -17,9 +17,14 @@ namespace VenusEngine
 			return true;
 		}
 
-		static std::pair<float, float> getPressedLeftButtonPos()
+		static float getScrolledDelta()
 		{
-			return Window::get().m_mousePos;
+			float delta = Window::get().m_mouseScrollDelta;
+			if (delta != 0.0f)
+			{
+				Window::get().m_mouseScrollDelta = 0.0f;
+			}
+			return delta;
 		}
 	};
 }

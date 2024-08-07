@@ -10,15 +10,13 @@ namespace VenusEngine
 	{
 	public:
 		Camera(Vec3 const& position,
-			   float yaw,
-			   float pitch,
+			   Vec3 const& target,
 			   float nearClipPlaneDistance,
 			   float farClipPlaneDistance,
 			   float aspectRatio,
 			   float verticalFieldOfViewDegrees)
 			: m_position(position),
-			  m_yaw(yaw),
-			  m_pitch(pitch),
+			  m_target(target),
 			  m_nearClipPlaneDistance(nearClipPlaneDistance),
 			  m_farClipPlaneDistance(farClipPlaneDistance),
 			  m_aspectRatio(aspectRatio),
@@ -27,9 +25,7 @@ namespace VenusEngine
 			updateCameraOrientation();
 		}
 
-		~Camera()
-		{
-		}
+		~Camera() = default;
 
 		/// \brief Sets the position (eye point) of the camera.
 		/// \param[in] position The new position of the camera.
@@ -39,12 +35,18 @@ namespace VenusEngine
 			m_position = position;
 		}
 
+		void setTarget(Vec3 const& target)
+		{
+			m_target = target;
+		}
+
 		/// \brief Moves the position (eye point) of the camera right or left.
 		/// \param[in] distance How far to move along the right vector.
 		/// \post The camera's location has been changed.
 		void moveRight(float distance)
 		{
 			m_position += m_rightDirection * distance;
+			m_target   += m_rightDirection * distance;
 		}
 
 		/// \brief Moves the position (eye point) of the camera up or down.
@@ -53,6 +55,7 @@ namespace VenusEngine
 		void moveUp(float distance)
 		{
 			m_position += m_upDirection * distance;
+			m_target   += m_upDirection * distance;
 		}
 
 		/// \brief Moves the position (eye point) of the camera back or forward.
@@ -61,13 +64,83 @@ namespace VenusEngine
 		void moveFront(float distance)
 		{
 			m_position += m_frontDirection * distance;
+			m_target   += m_frontDirection * distance;
 		}
 
-		void moveYawAndPitch(float deltaYaw, float deltaPitch)
+		/// \brief Moves the camera horizontally around the target position (orbit around y-axis).
+		/// \param[in] angleDegrees The angle to rotate in degrees.
+		void rotateAroundHorizontally(float angleDegrees)
 		{
-			m_yaw   += deltaYaw;
-			m_pitch += deltaPitch;
-			m_pitch = Math::clamp(m_pitch, -89.0f, 89.0f);
+			// Step 1: Translate the camera and target to the origin
+			Vec3 translatedPosition = m_position - m_target;
+
+			// Step 2: Perform the rotation around the Y-axis (horizontal axis)
+			float angleRadians = Math::degreesToRadians(angleDegrees);
+
+			// Create a quaternion for the rotation around the Y-axis
+			Quaternion rotationQuat = Quaternion::getQuaternionFromAngleAxis(Radian(angleRadians), Vec3(0.0f, 1.0f, 0.0f));
+
+			// Rotate the translated position
+			Vec3 rotatedPosition = rotationQuat * translatedPosition;
+
+			// Step 3: Translate back to the original position
+			m_position = m_target + rotatedPosition;
+
+			updateCameraOrientation();
+		}
+
+		/// \brief Moves the camera vertically around the target position (pitch).
+		/// \param[in] angleDegrees The angle to rotate in degrees.
+		void rotateAroundVertically(float angleDegrees)
+		{
+			// Update the pitch angle
+			m_pitch += angleDegrees;
+
+			// Normalize the pitch to be within -180 to 180 degrees
+			while (m_pitch > 180.0f)
+			{
+				m_pitch -= 360.0f;
+			}
+			while (m_pitch < -180.0f)
+			{
+				m_pitch += 360.0f;
+			}
+
+			// Step 1: Translate the camera and target to the origin
+			Vec3 translatedPosition = m_position - m_target;
+
+			// Step 2: Perform the rotation around the X-axis (vertical rotation)
+			float angleRadians = Math::degreesToRadians(angleDegrees);
+
+			// Create a quaternion for the rotation around the X-axis
+			Quaternion rotationQuat = Quaternion::getQuaternionFromAngleAxis(Radian(angleRadians), m_rightDirection);
+
+			// Rotate the translated position
+			Vec3 rotatedPosition = rotationQuat * translatedPosition;
+
+			// Step 3: Translate back to the original position
+			m_position = m_target + rotatedPosition;
+
+			updateCameraOrientation();
+		}
+
+		
+		/// \brief Zooms the camera in or out by adjusting the distance from the target.
+		/// \param[in] distance The distance to zoom in (positive) or out (negative).
+		void zoom(float distance)
+		{
+			Vec3 direction = m_position - m_target;
+
+			float currentRadius = direction.length();
+
+			direction.normalise();
+
+			// Update radius
+			float newRadius = currentRadius + distance;
+			newRadius = Math::max(newRadius, 0.1f); // Prevent the radius from becoming too small
+
+			// Update position
+			m_position = m_target + direction * newRadius;
 
 			updateCameraOrientation();
 		}
@@ -76,7 +149,7 @@ namespace VenusEngine
 		/// \return A view matrix based on the camera's location and axis vectors.
 		Mat4 getViewMatrix()
 		{
-			return Math::makeLookAtMatrix(m_position, m_position + m_frontDirection, m_upDirection);
+			return Math::makeLookAtMatrix(m_position, m_target, m_upDirection);
 		}
 
 		/// \brief Gets the projection matrix.
@@ -100,9 +173,8 @@ namespace VenusEngine
 		///   constructor.
 		void resetPose()
 		{
-			m_position = Vec3(0.0f, 0.0f, 12.0f);
-			m_yaw   = 0.0f;
-			m_pitch = 0.0f;
+			m_position = Vec3(0.0f, 0.0f, 10.0f);
+			m_target = Vec3();
 			updateCameraOrientation();
 		}
 
@@ -126,24 +198,19 @@ namespace VenusEngine
 	private:
 		void updateCameraOrientation()
 		{
-			// Create quaternions for pitch and yaw rotations
-			Quaternion pitchQuat = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_pitch)), Vec3(1.0f, 0.0f, 0.0f));
-			Quaternion yawQuat = Quaternion::getQuaternionFromAngleAxis(Radian(Math::degreesToRadians(m_yaw)), Vec3(0.0f, 1.0f, 0.0f));
-
-			// Combine the quaternions
-			Quaternion orientation = yawQuat * pitchQuat;
-
-			// Convert the quaternion to a rotation matrix
-			Mat4 rotationMatrix;
-			orientation.toRotationMatrix(rotationMatrix);
-
-			// Calculate the forward direction of the camera
-			Vec4 front = rotationMatrix * Vec4(0.0f, 0.0f, -1.0f, 0.0f);
-			m_frontDirection = Vec3(front.x, front.y, front.z);
+			// Calculate the front direction
+			m_frontDirection = m_target - m_position;
 			m_frontDirection.normalise();
 
-			// Calculate the right and up directions
-			m_rightDirection = m_frontDirection.crossProduct(Vec3(0.0f, 1.0f, 0.0f));
+			std::cout << m_pitch << '\n';
+			if (Math::abs(m_pitch) < 90.0f)
+			{
+				m_rightDirection = m_frontDirection.crossProduct(Vec3(0.0f, 1.0f, 0.0f));
+			}
+			else
+			{
+				m_rightDirection = m_frontDirection.crossProduct(Vec3(0.0f, -1.0f, 0.0f));
+			}
 			m_rightDirection.normalise();
 
 			m_upDirection = m_rightDirection.crossProduct(m_frontDirection);
@@ -151,13 +218,11 @@ namespace VenusEngine
 		}
 
 	private:
-		/// The location of the camera.
+		/// The location of the camera
 		Vec3 m_position;
 
-		/// horizontal (in degree)
-		float m_yaw;
-		/// vertical (in degree)
-		float m_pitch;
+		/// The location of the target
+		Vec3 m_target;
 
 		float m_nearClipPlaneDistance;
 		float m_farClipPlaneDistance;
@@ -171,5 +236,9 @@ namespace VenusEngine
 		Vec3 m_rightDirection;
 		/// A vector pointing up from the camera.
 		Vec3 m_upDirection;
+
+	private:
+		// Necessary if allow vertical rotation over 90 degrees
+		float m_pitch = 0.0f;
 	};
 }
