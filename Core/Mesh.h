@@ -14,8 +14,6 @@ namespace VenusEngine
 	{
 	public:
 		/// \brief Constructs an empty Mesh with no triangles.
-		/// \param context A pointer to an object through which the Mesh will be able
-		///   to make OpenGL calls.
 		/// \post A unique VAO and VBO have been generated for this Mesh and stored
 		///   for later use.
 		Mesh() : m_id(ID::generateID())
@@ -35,9 +33,6 @@ namespace VenusEngine
 
 		/// \brief Adds the geometry of [additional] triangles to this Mesh.
 		/// \param[in] geometry A collection of vertex data for 1 or more triangles.
-		///   Each vertex must contain interleaved 3-D position and 3-D color data
-		///  (X, Y, Z, R, G, B) and the vector must contain complete triangles(3
-		///   vertices each).
 		/// \pre This Mesh has not yet been prepared.
 		/// \post The geometry has been appended to this Mesh's internal geometry
 		///   store for future use.
@@ -80,9 +75,28 @@ namespace VenusEngine
 		/// \return The number of floats used for each vertex.
 		std::size_t getFloatsPerVertex() const
 		{
-			return m_vertices.size() / m_indices.size();
+			return 9ULL;
 		}
 
+		// reset color of all vertices to color of the first vertex
+		void resetColorToFirst()
+		{
+			if (m_vertices[9 + 6] == m_vertices[6] &&
+				m_vertices[9 + 7] == m_vertices[7] &&
+				m_vertices[9 + 8] == m_vertices[8])
+			{
+				// assume all vertices after the first vertex have the same color
+				// return directly if the color don't need to change
+				return;
+			}
+			for (std::size_t i = 9ULL; i < m_vertices.size(); i += getFloatsPerVertex())
+			{
+				m_vertices[i + 6ULL] = m_vertices[6];
+				m_vertices[i + 7ULL] = m_vertices[7];
+				m_vertices[i + 8ULL] = m_vertices[8];
+			}
+			prepareVao();
+		}
 
 		/// \brief Draws this Mesh in OpenGL.
 		/// \param[in] shaderProgram A pointer to the ShaderProgram that should
@@ -99,7 +113,7 @@ namespace VenusEngine
 
 			m_vertexArray.bind();
 			// 3 float position, 3 float normal, 3 float color
-			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 9);
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / getFloatsPerVertex());
 			m_vertexArray.unbind();
 
 			shaderProgram.disable();
@@ -117,6 +131,12 @@ namespace VenusEngine
 			return m_id;
 		}
 
+		// Return the color of the first vertex(assume all vertices have the same color)
+		float* getFirstColorPtr()
+		{
+			return &m_vertices[6];
+		}
+
 	private:
 		/// \brief Enables VAO attributes.
 		/// \pre This Mesh's VAO has been bound.
@@ -126,13 +146,13 @@ namespace VenusEngine
 		void enableAttributes()
 		{
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(0));
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, getFloatsPerVertex() * sizeof(float), reinterpret_cast<void*>(0));
 
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, getFloatsPerVertex() * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
 
 			glEnableVertexAttribArray(2);
-			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, getFloatsPerVertex() * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
 		}
 
 	private:

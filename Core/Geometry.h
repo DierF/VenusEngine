@@ -134,7 +134,7 @@ namespace VenusEngine
 		/// \return A collection containing one color (R,G,B) per face.
 		static std::vector<Vec3> generateRandomFaceColors(std::vector<Triangle> const& faces)
 		{
-			std::default_random_engine generator;
+			static std::default_random_engine generator;
 			std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 			std::vector<Vec3> faceColors;
 			for (unsigned int faceIndex = 0; faceIndex < faces.size(); faceIndex++)
@@ -151,7 +151,7 @@ namespace VenusEngine
 		///   assigned the same random color.
 		static std::vector<Vec3> generateRandomVertexColors(std::vector<Triangle> const& faces)
 		{
-			std::default_random_engine generator;
+			static std::default_random_engine generator;
 			std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
 			std::vector<Vec3> vertexColors;
 			for (unsigned int faceIndex = 0; faceIndex < faces.size(); faceIndex++)
@@ -179,6 +179,17 @@ namespace VenusEngine
 				}
 			}
 			return vertexColors;
+		}
+
+		/// \brief Assigns a random color to all faces of a mesh.
+		/// \param[in] faces A collection of faces that are part of the mesh.
+		/// \return A collection containing one color (R,G,B) for all faces.
+		static std::vector<Vec3> generateRandomColors(std::vector<Triangle> const& faces)
+		{
+			static std::default_random_engine generator;
+			std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+			return std::vector<Vec3>(faces.size(),
+				Vec3(distribution(generator), distribution(generator), distribution(generator)));
 		}
 
 		/// \brief Produces a collection of interleaved position / color data from

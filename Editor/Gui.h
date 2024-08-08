@@ -292,6 +292,13 @@ namespace VenusEngine
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
+				ImGui::Text("Color:");
+				float* color = scene.getActiveMesh()->getFirstColorPtr();
+				ImGui::ColorPicker3("##Color", color);
+				scene.getActiveMesh()->resetColorToFirst();
+
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
 				if (ImGui::Button(("Delete##Delete")))
 				{
 					scene.remove(scene.activeMeshName());
@@ -317,7 +324,7 @@ namespace VenusEngine
 				auto faces = Geometry::buildCube();
 				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
 								Geometry::computeFaceNormals(faces),
-								Geometry::generateRandomFaceColors(faces));
+								Geometry::generateRandomColors(faces));
 				std::shared_ptr<Mesh> cube_mesh_ptr(new Mesh());
 				cube_mesh_ptr->addGeometry(geometry);
 				cube_mesh_ptr->prepareVao();
