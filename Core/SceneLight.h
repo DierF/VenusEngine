@@ -24,7 +24,7 @@ namespace VenusEngine
 
 		bool add(std::string const& name, std::shared_ptr<LightSource> lightSource)
 		{
-			if (size() >= 8)
+			if (size() >= 16)
 			{
 				return false;
 			}

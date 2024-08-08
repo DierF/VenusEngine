@@ -38,7 +38,7 @@ struct Light
 };
 
 // An array of lights that will be filled by the C++ code.
-const int MAX_LIGHTS = 8;
+const int MAX_LIGHTS = 16;
 uniform Light uLights[MAX_LIGHTS];
 
 // Single ambient light, provided by the C++ code.
@@ -54,11 +54,10 @@ uniform vec3  uEmissiveIntensity;
 // Inputs from the VBO.
 in vec3 aPosition;
 in vec3 aNormal;
-in vec3 aColor; //TODO: upload in c++
+in vec3 aColor;
 
 // Output to the fragment shader.
 out vec3 vColor;
-out vec3 vVertexColor;  // Pass vertex color to fragment shader
 
 // Transformation matrices, provided by C++ code.
 uniform mat4 uView;
@@ -82,7 +81,16 @@ main (void)
 {
   mat4 worldViewProjection = uProjection * uView * uWorld;
   // Transform vertex into clip space
+
   gl_Position = worldViewProjection * vec4(aPosition, 1);
+
+  if (uNumLights == 0)
+  {
+    // use the vertex color if not light exist
+    vColor = aColor;
+    return;
+  }
+
   // Transform vertex into world space for lighting
   vec3 positionWorld = vec3(uWorld * vec4(aPosition, 1));
 
@@ -103,8 +111,7 @@ main (void)
   // Stay in bounds [0, 1]
   vColor = clamp(vColor, 0.0, 1.0);
 
-  // Pass vertex color to fragment shader
-  vVertexColor = aColor;
+  vColor *= aColor;  // Combine vertex color with lighting
 }
 
 // **

@@ -7,6 +7,7 @@
 #include "Core/Camera.h"
 #include "Core/Controller.h"
 #include "Core/MouseBuffer.h"
+#include "Core/WorldAxis.h"
 #include "Render/Renderer.h"
 #include "Render/Framebuffer.h"
 #include "Render/Texture.h"
@@ -17,10 +18,11 @@ namespace VenusEngine
 	class World
 	{
 	public:
-		World()
-			// : m_renderer("../Render/Vec3.vert", "../Render/Vec3.frag"),
-			: m_renderer("../Render/GeneralShader.vert", "../Render/GeneralShader.frag"),
-              m_camera(Vec3(0.0f, 0.0f, 10.0f), Vec3(), 0.1f, 100.0f, 1200.0f / 900.0f, 60.0f)
+        World()
+            // : m_renderer("../Render/Vec3.vert", "../Render/Vec3.frag"),
+            : m_renderer("../Render/GeneralShader.vert", "../Render/GeneralShader.frag"),
+              m_camera(Vec3(0.0f, 0.0f, 10.0f), Vec3(), 0.1f, 100.0f, 1200.0f / 900.0f, 60.0f),
+              m_worldAxisEnabled(false)
 		{
             // Diffuse intensity of the light source
             Vec3 diffuseIntensity(1.0f, 1.0f, 1.0f);
@@ -29,7 +31,10 @@ namespace VenusEngine
             // Direction of the light source in 3D space
             Vec3 direction(0.0f, 0.0f, -1.0f);
             std::shared_ptr<DirectionalLightSource> directional_light_ptr(new DirectionalLightSource(diffuseIntensity, specularIntensity, direction));
-            m_sceneLight.add("Light", directional_light_ptr);
+            if (!m_sceneLight.add("Light", directional_light_ptr))
+            {
+                std::cout << "Reached light source number limits" << std::endl;
+            }
 
             m_framebuffer.bind();
 
@@ -126,6 +131,11 @@ namespace VenusEngine
 			m_renderer.clearBuffer();
             // Render camera
 			m_camera.draw(m_renderer.getShaderProgram());
+            // Render World Axis
+            if (m_worldAxisEnabled)
+            {
+                m_worldAxis.draw(m_renderer.getShaderProgram());
+            }
             // Render Light
             m_sceneLight.draw(m_renderer.getShaderProgram());
             // Render Mesh
@@ -159,6 +169,7 @@ namespace VenusEngine
 		Renderer   m_renderer;
 		Controller m_controller;
 		Camera     m_camera;
+        WorldAxis  m_worldAxis;
 		Scene      m_scene;
         SceneLight m_sceneLight;
 
@@ -171,6 +182,8 @@ namespace VenusEngine
         std::pair<float, float> m_viewportSize;
         std::pair<float, float> m_viewportPos;
         float                   m_tabBarHeight;
+
+        bool m_worldAxisEnabled;
 
     public:
         // This is a temporary fix

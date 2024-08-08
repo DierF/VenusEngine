@@ -9,7 +9,6 @@
 precision highp float;
 
 in vec3 vColor;
-in vec3 vVertexColor;  // Receive vertex color from vertex shader
 
 layout(location = 0) out vec4 fColor;
 // buffer to draw id
@@ -21,8 +20,7 @@ uniform int objectID;
 void
 main ()
 {
-  vec3 finalColor = vColor * vVertexColor;  // Combine vertex color with lighting
-  fColor = vec4(finalColor, 1.0);
+  fColor = vec4(vColor, 1.0);
 
   IDColor = objectID;
 }
