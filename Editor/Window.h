@@ -54,7 +54,8 @@ namespace VenusEngine
 				throw std::runtime_error("failed to initialize GLAD");
 			}
 
-			glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+			// grey background color
+			glClearColor(0.2f, 0.2f, 0.2f, 1.0f);
 			glEnable(GL_DEPTH_TEST);
 			glEnable(GL_CULL_FACE);
 			glFrontFace(GL_CCW);
