@@ -208,7 +208,7 @@ namespace VenusEngine
 				ImGui::Text("Name:");
 				char buffer[32];
 				std::strncpy(buffer, scene.activeMeshName().c_str(), sizeof(buffer));
-				if (ImGui::InputText("##", buffer, sizeof(buffer)))
+				if (ImGui::InputText("##", buffer, sizeof(buffer)) && std::strlen(buffer) > 0)
 				{
 					scene.changeActiveMeshName(buffer);
 				}
@@ -376,7 +376,7 @@ namespace VenusEngine
 				tabBarHeight = windowRect.GetHeight() - windowContentHeight;
 			}
 
-			if (scene.hasActiveMesh())
+			if (focused && scene.hasActiveMesh())
 			{
 				gizmo({ viewportPos.x, viewportPos.y }, { viewportSize.x, viewportSize.y }, view, projection, transform);
 			}
