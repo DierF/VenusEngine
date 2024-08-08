@@ -232,6 +232,7 @@ namespace VenusEngine
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 			
 				ImGui::Text("Rotation:");
+				// Rotation in world coordinates
 				Radian deltaAngle(0.05f);
 				Radian angleX(0.0f);
 				ImGui::Button("X--");
@@ -281,10 +282,9 @@ namespace VenusEngine
 				
 				ImGui::Text("Scale:");
 				float scale = transform.m_scale.x;
-				ImGui::SliderFloat("##Scale", &scale, 0.1f, 10.0f);
-				transform.m_scale.x = scale;
-				transform.m_scale.y = scale;
-				transform.m_scale.z = scale;
+				ImGui::SliderFloat("X##ScaleX", &transform.m_scale.x, 0.1f, 10.0f);
+				ImGui::SliderFloat("Y##ScaleY", &transform.m_scale.y, 0.1f, 10.0f);
+				ImGui::SliderFloat("Z##ScaleZ", &transform.m_scale.z, 0.1f, 10.0f);
 				if (ImGui::Button("Reset Scale"))
 				{
 					transform.m_scale = Vec3::UNIT_SCALE;
