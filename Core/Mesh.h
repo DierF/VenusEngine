@@ -43,13 +43,10 @@ namespace VenusEngine
 		///   store for future use.
 		void addGeometry(std::vector<float> const& geometry)
 		{
-			std::size_t oldSize = m_vertices.size();
-			std::size_t newSize = m_vertices.size() + geometry.size();
-			m_vertices.resize(newSize);
-			std::copy(geometry.begin(), geometry.end(), m_vertices.begin() + oldSize);
+			m_vertices.insert(m_vertices.end(), geometry.begin(), geometry.end());
 		}
 
-		/// \brief Copies this Mesh's geometry into this Mesh's VBO and sets up its
+		/// \brief Copies this Mesh's geometry into this Mesh's VBO an d sets up its
 		///   VAO.
 		/// \pre This Mesh has not yet been prepared.
 		/// \post The first two vertex attributes have been enabled, with
@@ -101,7 +98,8 @@ namespace VenusEngine
 			shaderProgram.setUniformInt("objectID", m_id);
 
 			m_vertexArray.bind();
-			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 6);
+			// 3 float position, 3 float normal, 3 float color
+			glDrawArrays(GL_TRIANGLES, 0, static_cast<GLsizei>(m_vertices.size()) / 9);
 			m_vertexArray.unbind();
 
 			shaderProgram.disable();
@@ -128,10 +126,13 @@ namespace VenusEngine
 		void enableAttributes()
 		{
 			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(0));
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(0));
 
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(3 * sizeof(float)));
+
+			glEnableVertexAttribArray(2);
+			glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), reinterpret_cast<void*>(6 * sizeof(float)));
 		}
 
 	private:

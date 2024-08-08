@@ -202,7 +202,6 @@ namespace VenusEngine
 			m_frontDirection = m_target - m_position;
 			m_frontDirection.normalise();
 
-			std::cout << m_pitch << '\n';
 			if (Math::abs(m_pitch) < 90.0f)
 			{
 				m_rightDirection = m_frontDirection.crossProduct(Vec3(0.0f, 1.0f, 0.0f));

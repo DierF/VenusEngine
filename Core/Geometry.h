@@ -285,6 +285,36 @@ namespace VenusEngine
 			return data;
 		}
 
+		/// \brief Produces a collection of interleaved position / normal / color data from
+		///   faces, face normals and face colors.
+		/// \param[in] faces A collection of faces that are part of the mesh.
+		/// \param[in] faceNormals A collection of normals, one per face.
+		/// /// \param[in] faceColors A collection of colors, one per face.
+		/// \return A collection containing interleaved position / normal / color data that is
+		///   ready to be indexed / added to a Mesh.
+		static std::vector<float> dataWithFaceNormalsANDColors(std::vector<Triangle> const& faces,
+			std::vector<Vec3> const& faceNormals, std::vector<Vec3> const& faceColors)
+		{
+			assert(faces.size() == faceNormals.size() && faces.size() == faceColors.size());
+			std::vector<float> data;
+			for (unsigned int faceIndex = 0; faceIndex < faces.size(); faceIndex++)
+			{
+				for (unsigned int vertexIndex = 0; vertexIndex < 3; vertexIndex++)
+				{
+					data.push_back(faces[faceIndex][vertexIndex].x);
+					data.push_back(faces[faceIndex][vertexIndex].y);
+					data.push_back(faces[faceIndex][vertexIndex].z);
+					data.push_back(faceNormals[faceIndex].x);
+					data.push_back(faceNormals[faceIndex].y);
+					data.push_back(faceNormals[faceIndex].z);
+					data.push_back(faceColors[faceIndex].x);
+					data.push_back(faceColors[faceIndex].y);
+					data.push_back(faceColors[faceIndex].z);
+				}
+			}
+			return data;
+		}
+
 		/// \brief Creates a collection of triangles in a unit cube.
 		/// \return A collection of triangles in a unit cube, centered on the origin.
 		static std::vector<Triangle> buildCube()

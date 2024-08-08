@@ -33,6 +33,11 @@ namespace VenusEngine
 			glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
 		}
 
+		void renderbuffer(GLenum attachment, GLuint renderbuffer)
+		{
+			glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
+		}
+
 	private:
 		GLuint m_framebuffer;
 	};

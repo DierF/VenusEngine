@@ -315,8 +315,9 @@ namespace VenusEngine
 				}
 				name += std::to_string(index);
 				auto faces = Geometry::buildCube();
-				// auto geometry = Geometry::dataWithFaceColors(faces, Geometry::generateRandomFaceColors(faces));
-				auto geometry = Geometry::dataWithFaceNormals(faces, Geometry::computeFaceNormals(faces));
+				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
+								Geometry::computeFaceNormals(faces),
+								Geometry::generateRandomFaceColors(faces));
 				std::shared_ptr<Mesh> cube_mesh_ptr(new Mesh());
 				cube_mesh_ptr->addGeometry(geometry);
 				cube_mesh_ptr->prepareVao();

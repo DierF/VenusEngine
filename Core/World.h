@@ -10,6 +10,7 @@
 #include "Render/Renderer.h"
 #include "Render/Framebuffer.h"
 #include "Render/Texture.h"
+#include "Render/Renderbuffer.h"
 
 namespace VenusEngine
 {
@@ -48,6 +49,11 @@ namespace VenusEngine
             m_renderer.drawBuffers(2, drawBuffers);
 
             glReadBuffer(GL_COLOR_ATTACHMENT1);
+
+            m_depthbuffer.bind();
+            m_depthbuffer.storage(Window::get().getWidth(), Window::get().getHeight());
+            m_framebuffer.renderbuffer(GL_DEPTH_ATTACHMENT, m_depthbuffer.id());
+            m_depthbuffer.unbind();
 
             m_framebuffer.unbind();
 		}
@@ -103,6 +109,10 @@ namespace VenusEngine
             m_IDTexture.image2D(GL_R32I, GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second), GL_RED_INTEGER, GL_INT);
             m_IDTexture.unbind();
 
+            m_depthbuffer.bind();
+            m_depthbuffer.storage(GLsizei(m_viewportSize.first), GLsizei(m_viewportSize.second));
+            m_depthbuffer.unbind();
+
             // Draw all meshes window
             auto const& selectedMeshName = Gui::allMeshWindow(m_scene);
             if (!selectedMeshName.empty())
@@ -152,9 +162,10 @@ namespace VenusEngine
 		Scene      m_scene;
         SceneLight m_sceneLight;
 
-        Framebuffer             m_framebuffer;
-        Texture                 m_texture;
-        Texture                 m_IDTexture;
+        Framebuffer  m_framebuffer;
+        Texture      m_texture;
+        Texture      m_IDTexture;
+        Renderbuffer m_depthbuffer;
 
         bool                    m_viewportFocused;
         std::pair<float, float> m_viewportSize;

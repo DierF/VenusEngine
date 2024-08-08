@@ -30,6 +30,7 @@ namespace VenusEngine
 
 		void image2D(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type)
 		{
+			// This automatically reallocates the texture's storage
 			glTexImage2D(GL_TEXTURE_2D, 0, internalformat, width, height, 0, format, type, nullptr);
 		}
 
