@@ -35,6 +35,10 @@ namespace VenusEngine
 		void remove(std::string const& name)
 		{
 			m_lightSources.erase(name);
+			if (name == m_activeLightSourceName)
+			{
+				m_activeLightSourceName.clear();
+			}
 		}
 
 		void clear()
@@ -74,6 +78,49 @@ namespace VenusEngine
 			return m_lightSources[name];
 		}
 
+		void setActiveLightSource(std::string const& activeLightSourceName)
+		{
+			m_activeLightSourceName = activeLightSourceName;
+		}
+
+		bool hasActiveLightSource() const
+		{
+			return !m_activeLightSourceName.empty();
+		}
+
+		std::shared_ptr<LightSource> getActiveLightSource()
+		{
+			return m_lightSources[m_activeLightSourceName];
+		}
+
+		void changeActiveLightSourceName(std::string const& newActiveLightSourceName)
+		{
+			if (!hasActiveLightSource())
+			{
+				return;
+			}
+			auto activeLightSource = getActiveLightSource();
+			remove(m_activeLightSourceName);
+			add(newActiveLightSourceName, activeLightSource);
+			setActiveLightSource(newActiveLightSourceName);
+		}
+
+		std::string const& activeLightSourceName() const
+		{
+			return m_activeLightSourceName;
+		}
+
+		std::vector<std::string> allLightSourceNames() const
+		{
+			std::vector<std::string> names;
+			names.reserve(m_lightSources.size());
+			for (auto iter = m_lightSources.begin(); iter != m_lightSources.end(); ++iter)
+			{
+				names.push_back(iter->first);
+			}
+			return names;
+		}
+
 		int size() const
 		{
 			return static_cast<int>(m_lightSources.size());
@@ -81,5 +128,6 @@ namespace VenusEngine
 
 	private:
 		std::unordered_map<std::string, std::shared_ptr<LightSource>> m_lightSources;
+		std::string                                                   m_activeLightSourceName;
 	};
 }

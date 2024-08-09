@@ -24,18 +24,6 @@ namespace VenusEngine
               m_camera(Vec3(0.0f, 0.0f, 10.0f), Vec3(), 0.1f, 100.0f, 1200.0f / 900.0f, 60.0f),
               m_worldAxisEnabled(false)
 		{
-            // Diffuse intensity of the light source
-            Vec3 diffuseIntensity(1.0f, 1.0f, 1.0f);
-            // Specular intensity of the light source
-            Vec3 specularIntensity(0.8f, 0.8f, 0.8f);
-            // Direction of the light source in 3D space
-            Vec3 direction(0.0f, 0.0f, -1.0f);
-            std::shared_ptr<DirectionalLightSource> directional_light_ptr(new DirectionalLightSource(diffuseIntensity, specularIntensity, direction));
-            if (!m_sceneLight.add("Light", directional_light_ptr))
-            {
-                std::cout << "Reached light source number limits" << std::endl;
-            }
-
             m_framebuffer.bind();
 
             m_texture.bind();
@@ -100,6 +88,7 @@ namespace VenusEngine
                 if (id != -1)
                 {
                     m_scene.setActiveMeshByID(id);
+                    m_sceneLight.setActiveLightSource({});
                 }
             }
 
@@ -119,14 +108,24 @@ namespace VenusEngine
             m_depthbuffer.unbind();
 
             // Draw all meshes window
-            auto const& selectedMeshName = Gui::allMeshWindow(m_scene);
-            if (!selectedMeshName.empty())
+            auto const& [isMeshSelected, selectedObjectName] = Gui::allObjectWindow(m_scene, m_sceneLight);
+            // Handle case when user input empty name
+            if (!selectedObjectName.empty())
             {
-                m_scene.setActiveMesh(selectedMeshName);
+                if (isMeshSelected)
+                {
+                    m_scene.setActiveMesh(selectedObjectName);
+                    m_sceneLight.setActiveLightSource({});
+                }
+                else
+                {
+                    m_scene.setActiveMesh({});
+                    m_sceneLight.setActiveLightSource(selectedObjectName);
+                }
             }
 
             // Draw active mesh window
-            Gui::activeMeshWindow(m_scene);
+            Gui::activeObjectWindow(m_scene, m_sceneLight);
             // Clear buffer bit
 			m_renderer.clearBuffer();
             // Render camera

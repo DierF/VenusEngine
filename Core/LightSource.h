@@ -31,6 +31,16 @@ namespace VenusEngine
 			program.setUniformVec3(name + "specularIntensity", m_specularIntensity);
 		}
 
+		Vec3& getDiffuseIntensity()
+		{
+			return m_diffuseIntensity;
+		}
+
+		Vec3& getSpecularIntensity()
+		{
+			return m_specularIntensity;
+		}
+
 	private:
 		Vec3 m_diffuseIntensity;
 		Vec3 m_specularIntensity;
@@ -56,6 +66,11 @@ namespace VenusEngine
 			program.setUniformVec3(name + "direction", m_direction);
 		}
 
+		Vec3& getDirection()
+		{
+			return m_direction;
+		}
+
 	private:
 		Vec3 m_direction;
 	};
@@ -78,6 +93,16 @@ namespace VenusEngine
 			std::string name("uLights[" + std::to_string(lightNum) + "].");
 			program.setUniformVec3(name + "position"               , m_position);
 			program.setUniformVec3(name + "attenuationCoefficients", m_attenuationCoefficients);
+		}
+
+		Vec3& getPosition()
+		{
+			return m_position;
+		}
+
+		Vec3& getAttenuationCoefficients()
+		{
+			return m_attenuationCoefficients;
 		}
 
 	private:
@@ -125,6 +150,21 @@ namespace VenusEngine
 			program.setUniformVec3( name + "direction"     , m_direction);
 			program.setUniformFloat(name + "cutoffCosAngle", m_cutoffCosAngle);
 			program.setUniformFloat(name + "falloff"       , m_falloff);
+		}
+
+		Vec3& getDirection()
+		{
+			return m_direction;
+		}
+
+		float& getCutoffCosAngle()
+		{
+			return m_cutoffCosAngle;
+		}
+
+		float& getFalloff()
+		{
+			return m_falloff;
 		}
 
 	private:

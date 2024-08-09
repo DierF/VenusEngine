@@ -11,6 +11,7 @@
 #include <backends/imgui_impl_opengl3.h>
 
 #include "Core/Scene.h"
+#include "Core/SceneLight.h"
 #include "Core/Geometry.h"
 #include "Core/KeyBuffer.h"
 #include "Editor/Window.h"
@@ -199,12 +200,13 @@ namespace VenusEngine
 			return ImGuizmo::IsOver();
 		}
 
-		static void activeMeshWindow(Scene& scene)
+		static void activeObjectWindow(Scene& scene, SceneLight& sceneLight)
 		{
-			ImGui::Begin("Active Mesh");
+			ImGui::Begin("Active Object");
 
 			if (scene.hasActiveMesh())
 			{
+				// Information about Acitve Mesh
 				ImGui::Text("Name:");
 				char buffer[32];
 				std::strncpy(buffer, scene.activeMeshName().c_str(), sizeof(buffer));
@@ -304,14 +306,163 @@ namespace VenusEngine
 					scene.remove(scene.activeMeshName());
 				}
 			}
+			else if (sceneLight.hasActiveLightSource())
+			{
+				// Information about Active Light
+				ImGui::Text("Name:");
+				char buffer[32];
+				std::strncpy(buffer, sceneLight.activeLightSourceName().c_str(), sizeof(buffer));
+				if (ImGui::InputText("##", buffer, sizeof(buffer)) && std::strlen(buffer) > 0)
+				{
+					sceneLight.changeActiveLightSourceName(buffer);
+				}
+
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+				std::shared_ptr<LightSource> activeLightPtr = sceneLight.getActiveLightSource();
+
+				if (dynamic_cast<DirectionalLightSource*>(activeLightPtr.get()))
+				{
+					ImGui::Text("Light Type: Directional");
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& diffuseIntensity = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get())->getDiffuseIntensity();
+					ImGui::Text("DiffuseIntensity:");
+					ImGui::SliderFloat("X##DiffuseIntensityX", &diffuseIntensity.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##DiffuseIntensityY", &diffuseIntensity.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##DiffuseIntensityZ", &diffuseIntensity.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& specularIntensity = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get())->getSpecularIntensity();
+					ImGui::Text("SpecularIntensity:");
+					ImGui::SliderFloat("X##SpecularIntensityX", &specularIntensity.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##SpecularIntensityY", &specularIntensity.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##SpecularIntensityZ", &specularIntensity.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& direction = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get())->getDirection();
+					ImGui::Text("Direction:");
+					ImGui::SliderFloat("X##DirectionX", &direction.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##DirectionY", &direction.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##DirectionZ", &direction.z, -1.0f, 1.0f);
+				}
+				else if (dynamic_cast<PointLightSource*>(activeLightPtr.get()))
+				{
+					ImGui::Text("Light Type: Point");
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& diffuseIntensity = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getDiffuseIntensity();
+					ImGui::Text("DiffuseIntensity:");
+					ImGui::SliderFloat("X##DiffuseIntensityX", &diffuseIntensity.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##DiffuseIntensityY", &diffuseIntensity.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##DiffuseIntensityZ", &diffuseIntensity.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& specularIntensity = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getSpecularIntensity();
+					ImGui::Text("SpecularIntensity:");
+					ImGui::SliderFloat("X##SpecularIntensityX", &specularIntensity.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##SpecularIntensityY", &specularIntensity.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##SpecularIntensityZ", &specularIntensity.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& position = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getPosition();
+					ImGui::Text("Position:");
+					ImGui::SliderFloat("X##PositionX", &position.x, -100.0f, 100.0f);
+					ImGui::SliderFloat("Y##PositionY", &position.y, -100.0f, 100.0f);
+					ImGui::SliderFloat("Z##PositionZ", &position.z, -100.0f, 100.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& attenuationCoefficients = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getAttenuationCoefficients();
+					ImGui::Text("AttenuationCoefficients:");
+					ImGui::SliderFloat("X##AttenuationCoefficientsX", &attenuationCoefficients.x, -100.0f, 100.0f);
+					ImGui::SliderFloat("Y##AttenuationCoefficientsY", &attenuationCoefficients.y, -100.0f, 100.0f);
+					ImGui::SliderFloat("Z##AttenuationCoefficientsZ", &attenuationCoefficients.z, -100.0f, 100.0f);
+				}
+				else if (dynamic_cast<SpotLightSource*>(activeLightPtr.get()))
+				{
+					ImGui::Text("Light Type: Spot");
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& diffuseIntensity = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getDiffuseIntensity();
+					ImGui::Text("DiffuseIntensity:");
+					ImGui::SliderFloat("X##DiffuseIntensityX", &diffuseIntensity.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##DiffuseIntensityY", &diffuseIntensity.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##DiffuseIntensityZ", &diffuseIntensity.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& specularIntensity = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getSpecularIntensity();
+					ImGui::Text("SpecularIntensity:");
+					ImGui::SliderFloat("X##SpecularIntensityX", &specularIntensity.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##SpecularIntensityY", &specularIntensity.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##SpecularIntensityZ", &specularIntensity.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& position = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getPosition();
+					ImGui::Text("Position:");
+					ImGui::SliderFloat("X##PositionX", &position.x, -100.0f, 100.0f);
+					ImGui::SliderFloat("Y##PositionY", &position.y, -100.0f, 100.0f);
+					ImGui::SliderFloat("Z##PositionZ", &position.z, -100.0f, 100.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& attenuationCoefficients = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getAttenuationCoefficients();
+					ImGui::Text("AttenuationCoefficients:");
+					ImGui::SliderFloat("X##AttenuationCoefficientsX", &attenuationCoefficients.x, -100.0f, 100.0f);
+					ImGui::SliderFloat("Y##AttenuationCoefficientsY", &attenuationCoefficients.y, -100.0f, 100.0f);
+					ImGui::SliderFloat("Z##AttenuationCoefficientsZ", &attenuationCoefficients.z, -100.0f, 100.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					Vec3& direction = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getDirection();
+					ImGui::Text("Direction:");
+					ImGui::SliderFloat("X##DirectionX", &direction.x, -1.0f, 1.0f);
+					ImGui::SliderFloat("Y##DirectionY", &direction.y, -1.0f, 1.0f);
+					ImGui::SliderFloat("Z##DirectionZ", &direction.z, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					float& cutoffCosAngle = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getCutoffCosAngle();
+					ImGui::Text("cutoffCosAngle:");
+					ImGui::SliderFloat("X##CutoffCosAngleX", &cutoffCosAngle, -1.0f, 1.0f);
+
+					ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+					float& falloff = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getFalloff();
+					ImGui::Text("Falloff:");
+					ImGui::SliderFloat("X##FalloffX", &falloff, -1.0f, 1.0f);
+				}
+
+				ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+				if (ImGui::Button(("Delete##Delete")))
+				{
+					sceneLight.remove(sceneLight.activeLightSourceName());
+				}
+			}
 
 			ImGui::End();
 		}
 
-		static std::string allMeshWindow(Scene& scene)
+		// return { isMeshSelected, selectedObjectName }
+		// 0 for Light, 1 for Mesh
+		static std::pair<bool, std::string> allObjectWindow(Scene& scene, SceneLight& sceneLight)
 		{
-			std::string selectedMeshName;
-			ImGui::Begin("All Meshes");
+			bool isMeshSelected;
+			std::string selectedObjectName;
+
+			ImGui::Begin("All Objects");
+
+			// Display Meshes
 			if (ImGui::Button("Add Cube"))
 			{
 				int index = 1;
@@ -330,9 +481,10 @@ namespace VenusEngine
 				cube_mesh_ptr->prepareVao();
 				scene.add(name, cube_mesh_ptr);
 			}
+			ImGui::Text("All Meshes:");
+
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-			ImGui::Text("Meshes:");
 			for (auto const& meshName : scene.allMeshNames())
 			{
 				// Use a different color for the active mesh
@@ -345,12 +497,116 @@ namespace VenusEngine
 					ImGui::Text("%-50s", meshName.c_str());
 					if (ImGui::IsItemClicked())
 					{
-						selectedMeshName = meshName;
+						isMeshSelected = true;
+						selectedObjectName = meshName;
 					}
 				}
 			}
+
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+			// Display Lights
+			if (ImGui::Button("Add Directional Light"))
+			{
+				int index = 1;
+				auto name = std::string("Directional");
+				while (sceneLight.hasLightSource(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				// Diffuse intensity of the light source
+				Vec3 diffuseIntensity(1.0f, 1.0f, 1.0f);
+				// Specular intensity of the light source
+				Vec3 specularIntensity(0.8f, 0.8f, 0.8f);
+				// Direction of the light source in 3D space
+				Vec3 direction(0.0f, 0.0f, -1.0f);
+				std::shared_ptr<DirectionalLightSource> directional_light_ptr(
+					new DirectionalLightSource(diffuseIntensity, specularIntensity, direction));
+				if (!sceneLight.add(name, directional_light_ptr))
+				{
+					std::cout << "Reached light source number limits!" << std::endl;
+				}
+			}
+
+			if (ImGui::Button("Add Point Light"))
+			{
+				int index = 1;
+				auto name = std::string("Point");
+				while (sceneLight.hasLightSource(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				// Diffuse intensity of the light source
+				Vec3 diffuseIntensity(2.0f, 1.8f, 1.6f);
+				// Specular intensity of the light source
+				Vec3 specularIntensity(2.0f, 2.0f, 2.0f);
+				// Position of the light source in 3D space
+				Vec3 position(0.0f, 10.0f, 0.0f);
+				Vec3 attenuationCoefficients(1.0f, 0.07f, 0.017f);
+				std::shared_ptr<PointLightSource> point_light_ptr(
+					new PointLightSource(diffuseIntensity, specularIntensity, position,
+						attenuationCoefficients));
+				if (!sceneLight.add(name, point_light_ptr))
+				{
+					std::cout << "Reached light source number limits!" << std::endl;
+				}
+			}
+
+			if (ImGui::Button("Add Spot Light"))
+			{
+				int index = 1;
+				auto name = std::string("Spot");
+				while (sceneLight.hasLightSource(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				// Diffuse intensity of the light source
+				Vec3 diffuseIntensity(2.0f, 1.8f, 1.6f);
+				// Specular intensity of the light source
+				Vec3 specularIntensity(2.0f, 2.0f, 2.0f);
+				// Position of the light source in 3D space
+				Vec3 position(0.0f, 5.0f, 0.0f);
+				Vec3 attenuationCoefficients(1.0f, 0.07f, 0.017f);
+				Vec3 direction(0.0f, -1.0f, 0.0f);
+				float cutoffCosAngle = Math::cos(Radian(12.5f));
+				float falloff = 1.0f;
+				std::shared_ptr<SpotLightSource> spot_light_ptr(
+					new SpotLightSource(diffuseIntensity, specularIntensity, position,
+						attenuationCoefficients, direction, cutoffCosAngle, falloff));
+				if (!sceneLight.add(name, spot_light_ptr))
+				{
+					std::cout << "Reached light source number limits!" << std::endl;
+				}
+			}
+
+			ImGui::Text("All Lights: (Maximum: 16)");
+
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+			for (auto const& lightName : sceneLight.allLightSourceNames())
+			{
+				// Use a different color for the active light
+				if (lightName == sceneLight.activeLightSourceName())
+				{
+					ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s (Active)", lightName.c_str());
+				}
+				else
+				{
+					ImGui::Text("%-50s", lightName.c_str());
+					if (ImGui::IsItemClicked())
+					{
+						isMeshSelected = false;
+						selectedObjectName = lightName;
+					}
+				}
+			}
+
 			ImGui::End();
-			return selectedMeshName;
+			
+			return { isMeshSelected, selectedObjectName };
 		}
 
 		static std::tuple<bool, std::pair<float, float>, std::pair<float, float>, float> viewportWindow(Scene const& scene, uint64_t textureId, float const* view, float const* projection, float* transform)
