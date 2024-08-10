@@ -64,6 +64,16 @@ namespace VenusEngine
                 m_controller.tickCamera(m_camera);
             }
             m_camera.updateAspectRatio(m_viewportSize.first / m_viewportSize.second);
+
+            if (KeyBuffer::getPressedKey(GLFW_KEY_P))
+            {
+                m_camera.reset();
+            }
+
+            if (KeyBuffer::getPressedKey(GLFW_KEY_A))
+            {
+                m_worldAxisEnabled = !m_worldAxisEnabled;
+            }
 		}
 
 		void draw()

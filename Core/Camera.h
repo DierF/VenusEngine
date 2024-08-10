@@ -171,10 +171,11 @@ namespace VenusEngine
 		///   constructor.
 		/// \post The up and right vectors are computed as they had been in the
 		///   constructor.
-		void resetPose()
+		void reset()
 		{
 			m_position = Vec3(0.0f, 0.0f, 10.0f);
 			m_target = Vec3();
+			m_pitch = 0.0f;
 			updateCameraOrientation();
 		}
 
