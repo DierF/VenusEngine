@@ -222,10 +222,9 @@ namespace VenusEngine
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 				Transform& transform = scene.getActiveMesh()->getTransform();
+
 				ImGui::Text("Translation:");
-				ImGui::SliderFloat("X##TranslateX", &transform.m_position.x, -100.0f, 100.0f);
-				ImGui::SliderFloat("Y##TranslateY", &transform.m_position.y, -100.0f, 100.0f);
-				ImGui::SliderFloat("Z##TranslateZ", &transform.m_position.z, -100.0f, 100.0f);
+				ImGui::InputFloat3("##Translation", transform.m_position.ptr());
 				if (ImGui::Button("Reset Translation"))
 				{
 					transform.m_position = Vec3::ZERO;
@@ -236,45 +235,17 @@ namespace VenusEngine
 				ImGui::Text("Rotation:");
 				// Rotation in world coordinates
 				Radian deltaAngle(0.05f);
-				Radian angleX(0.0f);
-				ImGui::Button("X--");
-				if (ImGui::IsItemActive())
+				Radian angleX = transform.m_rotation.getPitch();
+				Radian angleY = transform.m_rotation.getYaw();
+				Radian angleZ = transform.m_rotation.getRoll();
+				// Update only when changed.
+				// Note: Coversion between Quaternion and Euler angle makes UI not straight forward
+				if (ImGui::InputFloat("##RotationX", angleX.ptr(), 0.05f) ||
+					ImGui::InputFloat("##RotationY", angleY.ptr(), 0.05f) ||
+					ImGui::InputFloat("##RotationZ", angleZ.ptr(), 0.05f))
 				{
-					angleX -= deltaAngle;
+					transform.m_rotation.fromYawPitchRoll(angleY, angleX, angleZ);
 				}
-				ImGui::SameLine();
-				ImGui::Button("X++");
-				if (ImGui::IsItemActive())
-				{
-					angleX += deltaAngle;
-				}
-				transform.m_rotation = Quaternion(angleX, Vec3::UNIT_X) * transform.m_rotation;
-				Radian angleY(0.0f);
-				ImGui::Button("Y--");
-				if (ImGui::IsItemActive())
-				{
-					angleY -= deltaAngle;
-				}
-				ImGui::SameLine();
-				ImGui::Button("Y++");
-				if (ImGui::IsItemActive())
-				{
-					angleY += deltaAngle;
-				}
-				transform.m_rotation = Quaternion(angleY, Vec3::UNIT_Y) * transform.m_rotation;
-				Radian angleZ(0.0f);
-				ImGui::Button("Z--");
-				if (ImGui::IsItemActive())
-				{
-					angleZ -= deltaAngle;
-				}
-				ImGui::SameLine();
-				ImGui::Button("Z++");
-				if (ImGui::IsItemActive())
-				{
-					angleZ += deltaAngle;
-				}
-				transform.m_rotation = Quaternion(angleZ, Vec3::UNIT_Z) * transform.m_rotation;
 				if (ImGui::Button("Reset Rotation"))
 				{
 					transform.m_rotation = Quaternion::IDENTITY;
@@ -283,10 +254,7 @@ namespace VenusEngine
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				
 				ImGui::Text("Scale:");
-				float scale = transform.m_scale.x;
-				ImGui::SliderFloat("X##ScaleX", &transform.m_scale.x, 0.1f, 10.0f);
-				ImGui::SliderFloat("Y##ScaleY", &transform.m_scale.y, 0.1f, 10.0f);
-				ImGui::SliderFloat("Z##ScaleZ", &transform.m_scale.z, 0.1f, 10.0f);
+				ImGui::InputFloat3("##Scale", transform.m_scale.ptr());
 				if (ImGui::Button("Reset Scale"))
 				{
 					transform.m_scale = Vec3::UNIT_SCALE;
@@ -327,27 +295,20 @@ namespace VenusEngine
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& diffuseIntensity = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get())->getDiffuseIntensity();
+					DirectionalLightSource* specificLightPtr = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get());
+
 					ImGui::Text("DiffuseIntensity:");
-					ImGui::SliderFloat("X##DiffuseIntensityX", &diffuseIntensity.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##DiffuseIntensityY", &diffuseIntensity.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##DiffuseIntensityZ", &diffuseIntensity.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& specularIntensity = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get())->getSpecularIntensity();
 					ImGui::Text("SpecularIntensity:");
-					ImGui::SliderFloat("X##SpecularIntensityX", &specularIntensity.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##SpecularIntensityY", &specularIntensity.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##SpecularIntensityZ", &specularIntensity.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& direction = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get())->getDirection();
 					ImGui::Text("Direction:");
-					ImGui::SliderFloat("X##DirectionX", &direction.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##DirectionY", &direction.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##DirectionZ", &direction.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr());
 				}
 				else if (dynamic_cast<PointLightSource*>(activeLightPtr.get()))
 				{
@@ -355,35 +316,25 @@ namespace VenusEngine
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& diffuseIntensity = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getDiffuseIntensity();
+					PointLightSource* specificLightPtr = dynamic_cast<PointLightSource*>(activeLightPtr.get());
+
 					ImGui::Text("DiffuseIntensity:");
-					ImGui::SliderFloat("X##DiffuseIntensityX", &diffuseIntensity.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##DiffuseIntensityY", &diffuseIntensity.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##DiffuseIntensityZ", &diffuseIntensity.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& specularIntensity = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getSpecularIntensity();
 					ImGui::Text("SpecularIntensity:");
-					ImGui::SliderFloat("X##SpecularIntensityX", &specularIntensity.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##SpecularIntensityY", &specularIntensity.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##SpecularIntensityZ", &specularIntensity.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& position = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getPosition();
 					ImGui::Text("Position:");
-					ImGui::SliderFloat("X##PositionX", &position.x, -100.0f, 100.0f);
-					ImGui::SliderFloat("Y##PositionY", &position.y, -100.0f, 100.0f);
-					ImGui::SliderFloat("Z##PositionZ", &position.z, -100.0f, 100.0f);
+					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& attenuationCoefficients = dynamic_cast<PointLightSource*>(activeLightPtr.get())->getAttenuationCoefficients();
 					ImGui::Text("AttenuationCoefficients:");
-					ImGui::SliderFloat("X##AttenuationCoefficientsX", &attenuationCoefficients.x, -100.0f, 100.0f);
-					ImGui::SliderFloat("Y##AttenuationCoefficientsY", &attenuationCoefficients.y, -100.0f, 100.0f);
-					ImGui::SliderFloat("Z##AttenuationCoefficientsZ", &attenuationCoefficients.z, -100.0f, 100.0f);
+					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr());
 				}
 				else if (dynamic_cast<SpotLightSource*>(activeLightPtr.get()))
 				{
@@ -391,55 +342,40 @@ namespace VenusEngine
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& diffuseIntensity = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getDiffuseIntensity();
+					SpotLightSource* specificLightPtr = dynamic_cast<SpotLightSource*>(activeLightPtr.get());
+
 					ImGui::Text("DiffuseIntensity:");
-					ImGui::SliderFloat("X##DiffuseIntensityX", &diffuseIntensity.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##DiffuseIntensityY", &diffuseIntensity.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##DiffuseIntensityZ", &diffuseIntensity.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& specularIntensity = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getSpecularIntensity();
 					ImGui::Text("SpecularIntensity:");
-					ImGui::SliderFloat("X##SpecularIntensityX", &specularIntensity.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##SpecularIntensityY", &specularIntensity.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##SpecularIntensityZ", &specularIntensity.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& position = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getPosition();
 					ImGui::Text("Position:");
-					ImGui::SliderFloat("X##PositionX", &position.x, -100.0f, 100.0f);
-					ImGui::SliderFloat("Y##PositionY", &position.y, -100.0f, 100.0f);
-					ImGui::SliderFloat("Z##PositionZ", &position.z, -100.0f, 100.0f);
+					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& attenuationCoefficients = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getAttenuationCoefficients();
 					ImGui::Text("AttenuationCoefficients:");
-					ImGui::SliderFloat("X##AttenuationCoefficientsX", &attenuationCoefficients.x, -100.0f, 100.0f);
-					ImGui::SliderFloat("Y##AttenuationCoefficientsY", &attenuationCoefficients.y, -100.0f, 100.0f);
-					ImGui::SliderFloat("Z##AttenuationCoefficientsZ", &attenuationCoefficients.z, -100.0f, 100.0f);
+					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					Vec3& direction = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getDirection();
 					ImGui::Text("Direction:");
-					ImGui::SliderFloat("X##DirectionX", &direction.x, -1.0f, 1.0f);
-					ImGui::SliderFloat("Y##DirectionY", &direction.y, -1.0f, 1.0f);
-					ImGui::SliderFloat("Z##DirectionZ", &direction.z, -1.0f, 1.0f);
+					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					float& cutoffCosAngle = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getCutoffCosAngle();
 					ImGui::Text("cutoffCosAngle:");
-					ImGui::SliderFloat("X##CutoffCosAngleX", &cutoffCosAngle, -1.0f, 1.0f);
+					ImGui::InputFloat("##cutoffCosAngle", &specificLightPtr->getCutoffCosAngle());
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-					float& falloff = dynamic_cast<SpotLightSource*>(activeLightPtr.get())->getFalloff();
 					ImGui::Text("Falloff:");
-					ImGui::SliderFloat("X##FalloffX", &falloff, -1.0f, 1.0f);
+					ImGui::InputFloat("##Falloff", &specificLightPtr->getFalloff());
 				}
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
