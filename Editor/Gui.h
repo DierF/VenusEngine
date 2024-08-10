@@ -398,7 +398,6 @@ namespace VenusEngine
 
 			ImGui::Begin("All Objects");
 
-			// Display Meshes
 			if (ImGui::Button("Add Cube"))
 			{
 				int index = 1;
@@ -417,6 +416,30 @@ namespace VenusEngine
 				cube_mesh_ptr->prepareVao();
 				scene.add(name, cube_mesh_ptr);
 			}
+
+			static int subdivisions = 0;
+			ImGui::Text("Sphere Subdivision Depth: ");
+			ImGui::InputInt("##Sphere Subdivision Depth", &subdivisions);
+			if (ImGui::Button("Add Sphere"))
+			{
+				int index = 1;
+				auto name = std::string("Sphere");
+				while (scene.hasMesh(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				auto faces = Geometry::buildSphere(subdivisions);
+				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
+					Geometry::computeFaceNormals(faces),
+					Geometry::generateRandomColors(faces));
+				std::shared_ptr<Mesh> sphere_mesh_ptr(new Mesh());
+				sphere_mesh_ptr->addGeometry(geometry);
+				sphere_mesh_ptr->prepareVao();
+				scene.add(name, sphere_mesh_ptr);
+			}
+
+			// Display Meshes
 			ImGui::Text("All Meshes:");
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));

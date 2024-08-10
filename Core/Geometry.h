@@ -357,5 +357,87 @@ namespace VenusEngine
 			triangles.push_back(Triangle{ Vec3(0.5f, -0.5f, -0.5f), Vec3(0.5f, -0.5f, 0.5f), Vec3(-0.5f, -0.5f, -0.5f) });
 			return triangles;
 		}
+
+		/// \brief Creates a collection of triangles in a sphere.
+		/// \param subdivisions the number of triangles used.
+		/// \return A collection of triangles in a sphere, centered on the origin.
+		static std::vector<Triangle> buildSphere(int subdivisions)
+		{
+			float const X = 0.525731112119133606f;
+			float const Z = 0.850650808352039932f;
+			float const N = 0.0f;
+
+			std::vector<Vec3> vertices =
+			{
+				Vec3(-X, N, Z), Vec3( X, N,  Z), Vec3(-X,  N, -Z), Vec3( X,  N, -Z),
+				Vec3( N, Z, X), Vec3( N, Z, -X), Vec3( N, -Z,  X), Vec3( N, -Z, -X),
+				Vec3( Z, X, N), Vec3(-Z, X,  N), Vec3( Z, -X,  N), Vec3(-Z, -X,  N)
+			};
+
+			std::vector<Triangle> triangles =
+			{
+				{vertices[ 0], vertices[ 1], vertices[ 4]},
+				{vertices[ 0], vertices[ 4], vertices[ 9]},
+				{vertices[ 9], vertices[ 4], vertices[ 5]},
+				{vertices[ 4], vertices[ 8], vertices[ 5]},
+				{vertices[ 4], vertices[ 1], vertices[ 8]},
+				{vertices[ 8], vertices[ 1], vertices[10]},
+				{vertices[ 8], vertices[10], vertices[ 3]},
+				{vertices[ 5], vertices[ 8], vertices[ 3]},
+				{vertices[ 5], vertices[ 3], vertices[ 2]},
+				{vertices[ 2], vertices[ 3], vertices[ 7]},
+				{vertices[ 7], vertices[ 3], vertices[10]},
+				{vertices[ 7], vertices[10], vertices[ 6]},
+				{vertices[ 7], vertices[ 6], vertices[11]},
+				{vertices[11], vertices[ 6], vertices[ 0]},
+				{vertices[ 0], vertices[ 6], vertices[ 1]},
+				{vertices[ 6], vertices[10], vertices[ 1]},
+				{vertices[ 9], vertices[11], vertices[ 0]},
+				{vertices[ 9], vertices[ 2], vertices[11]},
+				{vertices[ 9], vertices[ 5], vertices[ 2]},
+				{vertices[ 7], vertices[11], vertices[ 2]}
+			};
+
+			std::vector<Triangle> sphereTriangles;
+			for (auto const& tri : triangles)
+			{
+				auto subdividedTriangles = subdivide(tri[0], tri[1], tri[2], subdivisions);
+				sphereTriangles.insert(sphereTriangles.end(), subdividedTriangles.begin(), subdividedTriangles.end());
+			}
+
+			return sphereTriangles;
+		}
+
+	private:
+		// helper to generate subdivision for sphere
+		static std::vector<Triangle> subdivide(Vec3 const& v1, Vec3 const& v2, Vec3 const& v3, int depth)
+		{
+			if (depth == 0)
+			{
+				return { {v1, v2, v3} }; // Swap v2 and v3 to change the winding order
+			}
+			else
+			{
+				Vec3 v12 = (v1 + v2);
+				v12.normalise();
+				Vec3 v23 = (v2 + v3);
+				v23.normalise();
+				Vec3 v31 = (v3 + v1);
+				v31.normalise();
+
+				std::vector<Triangle> triangles;
+				auto t1 = subdivide( v1, v31, v12, depth - 1);
+				auto t2 = subdivide( v2, v12, v23, depth - 1);
+				auto t3 = subdivide( v3, v23, v31, depth - 1);
+				auto t4 = subdivide(v12, v31, v23, depth - 1);
+
+				triangles.insert(triangles.end(), t1.begin(), t1.end());
+				triangles.insert(triangles.end(), t2.begin(), t2.end());
+				triangles.insert(triangles.end(), t3.begin(), t3.end());
+				triangles.insert(triangles.end(), t4.begin(), t4.end());
+
+				return triangles;
+			}
+		}
 	};
 }
