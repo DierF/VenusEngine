@@ -210,7 +210,8 @@ namespace VenusEngine
 				ImGui::Text("Name:");
 				char buffer[32];
 				std::strncpy(buffer, scene.activeMeshName().c_str(), sizeof(buffer));
-				if (ImGui::InputText("##", buffer, sizeof(buffer)) && std::strlen(buffer) > 0)
+				if (ImGui::InputText("##", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue) &&
+					std::strlen(buffer) > 0)
 				{
 					scene.changeActiveMeshName(buffer);
 				}
@@ -280,7 +281,8 @@ namespace VenusEngine
 				ImGui::Text("Name:");
 				char buffer[32];
 				std::strncpy(buffer, sceneLight.activeLightSourceName().c_str(), sizeof(buffer));
-				if (ImGui::InputText("##", buffer, sizeof(buffer)) && std::strlen(buffer) > 0)
+				if (ImGui::InputText("##", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue) &&
+					std::strlen(buffer) > 0)
 				{
 					sceneLight.changeActiveLightSourceName(buffer);
 				}
