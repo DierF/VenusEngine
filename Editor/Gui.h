@@ -225,7 +225,8 @@ namespace VenusEngine
 				Transform& transform = scene.getActiveMesh()->getTransform();
 
 				ImGui::Text("Translation:");
-				ImGui::InputFloat3("##Translation", transform.m_position.ptr());
+				ImGui::InputFloat3("##Translation", transform.m_position.ptr(),
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 				if (ImGui::Button("Reset Translation"))
 				{
 					transform.m_position = Vec3::ZERO;
@@ -241,9 +242,12 @@ namespace VenusEngine
 				Radian angleZ = transform.m_rotation.getRoll();
 				// Update only when changed.
 				// Note: Coversion between Quaternion and Euler angle makes UI not straight forward
-				if (ImGui::InputFloat("##RotationX", angleX.ptr(), 0.05f) ||
-					ImGui::InputFloat("##RotationY", angleY.ptr(), 0.05f) ||
-					ImGui::InputFloat("##RotationZ", angleZ.ptr(), 0.05f))
+				if (ImGui::InputFloat("##RotationX", angleX.ptr(), 0.05f, 0.05f,
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue) ||
+					ImGui::InputFloat("##RotationY", angleY.ptr(), 0.05f, 0.05f,
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue) ||
+					ImGui::InputFloat("##RotationZ", angleZ.ptr(), 0.05f, 0.05f,
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
 				{
 					transform.m_rotation.fromYawPitchRoll(angleY, angleX, angleZ);
 				}
@@ -255,7 +259,8 @@ namespace VenusEngine
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				
 				ImGui::Text("Scale:");
-				ImGui::InputFloat3("##Scale", transform.m_scale.ptr());
+				ImGui::InputFloat3("##Scale", transform.m_scale.ptr(),
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 				if (ImGui::Button("Reset Scale"))
 				{
 					transform.m_scale = Vec3::UNIT_SCALE;
@@ -300,17 +305,20 @@ namespace VenusEngine
 					DirectionalLightSource* specificLightPtr = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get());
 
 					ImGui::Text("DiffuseIntensity:");
-					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr());
+					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("SpecularIntensity:");
-					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr());
+					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Direction:");
-					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr());
+					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 				}
 				else if (dynamic_cast<PointLightSource*>(activeLightPtr.get()))
 				{
@@ -321,22 +329,26 @@ namespace VenusEngine
 					PointLightSource* specificLightPtr = dynamic_cast<PointLightSource*>(activeLightPtr.get());
 
 					ImGui::Text("DiffuseIntensity:");
-					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr());
+					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("SpecularIntensity:");
-					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr());
+					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Position:");
-					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr());
+					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("AttenuationCoefficients:");
-					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr());
+					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 				}
 				else if (dynamic_cast<SpotLightSource*>(activeLightPtr.get()))
 				{
@@ -347,37 +359,44 @@ namespace VenusEngine
 					SpotLightSource* specificLightPtr = dynamic_cast<SpotLightSource*>(activeLightPtr.get());
 
 					ImGui::Text("DiffuseIntensity:");
-					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr());
+					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("SpecularIntensity:");
-					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr());
+					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Position:");
-					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr());
+					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("AttenuationCoefficients:");
-					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr());
+					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Direction:");
-					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr());
+					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr(),
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("cutoffCosAngle:");
-					ImGui::InputFloat("##cutoffCosAngle", &specificLightPtr->getCutoffCosAngle());
+					ImGui::InputFloat("##cutoffCosAngle", &specificLightPtr->getCutoffCosAngle(), 0.05f, 0.05f,
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Falloff:");
-					ImGui::InputFloat("##Falloff", &specificLightPtr->getFalloff());
+					ImGui::InputFloat("##Falloff", &specificLightPtr->getFalloff(), 0.05f, 0.05f,
+						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 				}
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
@@ -421,7 +440,8 @@ namespace VenusEngine
 
 			static int sphereSubdivisions = 0;
 			ImGui::Text("Sphere Subdivision Depth:");
-			ImGui::InputInt("##Sphere Subdivision Depth", &sphereSubdivisions);
+			ImGui::InputInt("##Sphere Subdivision Depth", &sphereSubdivisions, 1, 1,
+				ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Sphere"))
 			{
 				int index = 1;
@@ -446,11 +466,14 @@ namespace VenusEngine
 			static float cylinderRadius = 1.0f;
 			// TODO: give each label a unique name
 			ImGui::Text("Side Segment Number:");
-			ImGui::InputInt("##Side Segment Number", &cylinderSegments);
+			ImGui::InputInt("##Side Segment Number", &cylinderSegments, 1, 1,
+				ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Height:");
-			ImGui::InputFloat("##Height", &cylinderHeight);
+			ImGui::InputFloat("##Height", &cylinderHeight, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Radius:");
-			ImGui::InputFloat("##Radius", &cylinderRadius);
+			ImGui::InputFloat("##Radius", &cylinderRadius, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Cylinder"))
 			{
 				int index = 1;
@@ -474,11 +497,14 @@ namespace VenusEngine
 			static float coneHeight = 2.0f;
 			static float coneRadius = 1.0f;
 			ImGui::Text("Side Segment Number:");
-			ImGui::InputInt("##Side Segment Number", &coneSegments);
+			ImGui::InputInt("##Side Segment Number", &coneSegments, 1, 1,
+				ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Height:");
-			ImGui::InputFloat("##Height", &coneHeight);
+			ImGui::InputFloat("##Height", &coneHeight, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Radius:");
-			ImGui::InputFloat("##Radius", &coneRadius);
+			ImGui::InputFloat("##Radius", &coneRadius, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Cone"))
 			{
 				int index = 1;
@@ -503,13 +529,17 @@ namespace VenusEngine
 			static float torusMajorRadius = 1.5f;
 			static float torusMinorRadius = 0.5f;
 			ImGui::Text("Major Segment Number:");
-			ImGui::InputInt("##Major Segment Number", &torusMajorSegments);
+			ImGui::InputInt("##Major Segment Number", &torusMajorSegments, 1, 1,
+				ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Minor Segment Number:");
-			ImGui::InputInt("##Minor Segment Number", &torusMinorSegments);
+			ImGui::InputInt("##Minor Segment Number", &torusMinorSegments, 1, 1,
+				ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Major Radius:");
-			ImGui::InputFloat("##Major Radius", &torusMajorRadius);
+			ImGui::InputFloat("##Major Radius", &torusMajorRadius, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Minor Radius:");
-			ImGui::InputFloat("##Minor Radius", &torusMinorRadius);
+			ImGui::InputFloat("##Minor Radius", &torusMinorRadius, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Torus"))
 			{
 				int index = 1;
@@ -533,9 +563,11 @@ namespace VenusEngine
 			static float pyramidHeight = 2.0f;
 			static float pyramidRadius = 1.0f;
 			ImGui::Text("Height:");
-			ImGui::InputFloat("##Height", &pyramidHeight);
+			ImGui::InputFloat("##Height", &pyramidHeight, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			ImGui::Text("Radius:");
-			ImGui::InputFloat("##Radius", &pyramidRadius);
+			ImGui::InputFloat("##Radius", &pyramidRadius, 0.05f, 0.05f,
+				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Pyramid"))
 			{
 				int index = 1;
