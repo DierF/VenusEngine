@@ -68,13 +68,14 @@ namespace VenusEngine
                 {
                     m_camera.reset();
                 }
-
-                // Enable/Disable World Axis
-                if (KeyBuffer::getPressedKey(GLFW_KEY_A))
-                {
-                    m_worldAxisEnabled = !m_worldAxisEnabled;
-                }
             }
+
+            // Enable/Disable World Axis
+            if (KeyBuffer::getPressedKey(GLFW_KEY_A))
+            {
+                m_worldAxisEnabled = !m_worldAxisEnabled;
+            }
+
             m_camera.updateAspectRatio(m_viewportSize.first / m_viewportSize.second);
 		}
 

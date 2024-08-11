@@ -204,29 +204,41 @@ namespace VenusEngine
 		{
 			ImGui::Begin("Active Object");
 
+			float totalWidth = ImGui::GetContentRegionAvail().x;
+
+			//ImGuiStyle& style = ImGui::GetStyle();
+			//ImVec2 itemSpacing = style.ItemInnerSpacing;
+			// Note: I have not find the best way to fit this to inputFloat3 itemspacing
+			float itemSpacing = 4.0f;
+
 			if (scene.hasActiveMesh())
 			{
 				// Information about Acitve Mesh
 				ImGui::Text("Name:");
-				char buffer[32];
+				char buffer[256];
 				std::strncpy(buffer, scene.activeMeshName().c_str(), sizeof(buffer));
+				ImGui::PushItemWidth(totalWidth);
 				if (ImGui::InputText("##", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue) &&
 					std::strlen(buffer) > 0)
 				{
 					scene.changeActiveMeshName(buffer);
 				}
+				ImGui::PopItemWidth();
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-				ImGui::Text((std::string("ID: ") + std::to_string(scene.getActiveMesh()->getID())).c_str());
+				ImGui::Text("ID:");
+				ImGui::Text(std::to_string(scene.getActiveMesh()->getID()).c_str());
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 				Transform& transform = scene.getActiveMesh()->getTransform();
 
 				ImGui::Text("Translation:");
+				ImGui::PushItemWidth(totalWidth);
 				ImGui::InputFloat3("##Translation", transform.m_position.ptr(),
 					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::PopItemWidth();
 				if (ImGui::Button("Reset Translation"))
 				{
 					transform.m_position = Vec3::ZERO;
@@ -242,12 +254,17 @@ namespace VenusEngine
 				Radian angleZ = transform.m_rotation.getRoll();
 				// Update only when changed.
 				// Note: Coversion between Quaternion and Euler angle makes UI not straight forward
-				if (ImGui::InputFloat("##RotationX", angleX.ptr(), 0.05f, 0.05f,
-					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue) ||
-					ImGui::InputFloat("##RotationY", angleY.ptr(), 0.05f, 0.05f,
-					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue) ||
-					ImGui::InputFloat("##RotationZ", angleZ.ptr(), 0.05f, 0.05f,
-					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue))
+				ImGui::PushItemWidth((totalWidth - 2.0f * itemSpacing) / 3.0f);
+				bool changedX = ImGui::InputFloat("##RotationX", angleX.ptr(), 0.0f, 0.0f,
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::SameLine(0.0f, itemSpacing);
+				bool changedY = ImGui::InputFloat("##RotationY", angleY.ptr(), 0.0f, 0.0f,
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::SameLine(0.0f, itemSpacing);
+				bool changedZ = ImGui::InputFloat("##RotationZ", angleZ.ptr(), 0.0f, 0.0f,
+					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::PopItemWidth();
+				if (changedX || changedY || changedZ)
 				{
 					transform.m_rotation.fromYawPitchRoll(angleY, angleX, angleZ);
 				}
@@ -259,8 +276,10 @@ namespace VenusEngine
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 				
 				ImGui::Text("Scale:");
+				ImGui::PushItemWidth(totalWidth);
 				ImGui::InputFloat3("##Scale", transform.m_scale.ptr(),
 					"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::PopItemWidth();
 				if (ImGui::Button("Reset Scale"))
 				{
 					transform.m_scale = Vec3::UNIT_SCALE;
@@ -270,7 +289,9 @@ namespace VenusEngine
 
 				ImGui::Text("Color:");
 				float* color = scene.getActiveMesh()->getFirstColorPtr();
-				ImGui::ColorPicker3("##Color", color);
+				ImGui::PushItemWidth(totalWidth);
+				ImGui::ColorPicker3("##Color", color, ImGuiColorEditFlags_NoSidePreview);
+				ImGui::PopItemWidth();
 				scene.getActiveMesh()->resetColorToFirst();
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
@@ -286,11 +307,13 @@ namespace VenusEngine
 				ImGui::Text("Name:");
 				char buffer[32];
 				std::strncpy(buffer, sceneLight.activeLightSourceName().c_str(), sizeof(buffer));
+				ImGui::PushItemWidth(totalWidth);
 				if (ImGui::InputText("##", buffer, sizeof(buffer), ImGuiInputTextFlags_EnterReturnsTrue) &&
 					std::strlen(buffer) > 0)
 				{
 					sceneLight.changeActiveLightSourceName(buffer);
 				}
+				ImGui::PopItemWidth();
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
@@ -298,105 +321,136 @@ namespace VenusEngine
 
 				if (dynamic_cast<DirectionalLightSource*>(activeLightPtr.get()))
 				{
-					ImGui::Text("Light Type: Directional");
+					ImGui::Text("Light Type:");
+					ImGui::Text("Directional");
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					DirectionalLightSource* specificLightPtr = dynamic_cast<DirectionalLightSource*>(activeLightPtr.get());
 
 					ImGui::Text("DiffuseIntensity:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("SpecularIntensity:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Direction:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 				}
 				else if (dynamic_cast<PointLightSource*>(activeLightPtr.get()))
 				{
-					ImGui::Text("Light Type: Point");
+					ImGui::Text("Light Type:");
+					ImGui::Text("Point");
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					PointLightSource* specificLightPtr = dynamic_cast<PointLightSource*>(activeLightPtr.get());
 
 					ImGui::Text("DiffuseIntensity:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("SpecularIntensity:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Position:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("AttenuationCoefficients:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 				}
 				else if (dynamic_cast<SpotLightSource*>(activeLightPtr.get()))
 				{
-					ImGui::Text("Light Type: Spot");
+					ImGui::Text("Light Type:");
+					ImGui::Text("Spot");
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					SpotLightSource* specificLightPtr = dynamic_cast<SpotLightSource*>(activeLightPtr.get());
 
 					ImGui::Text("DiffuseIntensity:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##DiffuseIntensity:", specificLightPtr->getDiffuseIntensity().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("SpecularIntensity:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##SpecularIntensity:", specificLightPtr->getSpecularIntensity().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Position:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##Position:", specificLightPtr->getPosition().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("AttenuationCoefficients:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##AttenuationCoefficients:", specificLightPtr->getAttenuationCoefficients().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Direction:");
+					ImGui::PushItemWidth(totalWidth);
 					ImGui::InputFloat3("##Direction:", specificLightPtr->getDirection().ptr(),
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("cutoffCosAngle:");
-					ImGui::InputFloat("##cutoffCosAngle", &specificLightPtr->getCutoffCosAngle(), 0.05f, 0.05f,
+					ImGui::PushItemWidth(totalWidth);
+					ImGui::InputFloat("##cutoffCosAngle", &specificLightPtr->getCutoffCosAngle(), 0.0f, 0.0f,
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 
 					ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
 					ImGui::Text("Falloff:");
-					ImGui::InputFloat("##Falloff", &specificLightPtr->getFalloff(), 0.05f, 0.05f,
+					ImGui::PushItemWidth(totalWidth);
+					ImGui::InputFloat("##Falloff", &specificLightPtr->getFalloff(), 0.0f, 0.0f,
 						"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+					ImGui::PopItemWidth();
 				}
 
 				ImGui::Dummy(ImVec2(0.0f, 5.0f));
@@ -419,6 +473,16 @@ namespace VenusEngine
 
 			ImGui::Begin("All Objects");
 
+			float totalWidth = ImGui::GetContentRegionAvail().x;
+
+			//ImGuiStyle& style = ImGui::GetStyle();
+			//ImVec2 itemSpacing = style.ItemInnerSpacing;
+			// Note: I have not find the best way to fit this to inputFloat3 itemspacing
+			float itemSpacing = 4.0f;
+
+			ImGui::Text("Add an Object:");
+
+			ImGui::Text("Cube:");
 			if (ImGui::Button("Add Cube"))
 			{
 				int index = 1;
@@ -438,10 +502,12 @@ namespace VenusEngine
 				scene.add(name, cube_mesh_ptr);
 			}
 
-			static int sphereSubdivisions = 0;
-			ImGui::Text("Sphere Subdivision Depth:");
-			ImGui::InputInt("##Sphere Subdivision Depth", &sphereSubdivisions, 1, 1,
+			static int sphereSubdivisions = 2;
+			ImGui::Text("Sphere: (Subdivision Depth)");
+			ImGui::PushItemWidth(totalWidth);
+			ImGui::InputInt("##Sphere Subdivision Depth", &sphereSubdivisions, 0, 0,
 				ImGuiInputTextFlags_EnterReturnsTrue);
+			ImGui::PopItemWidth();
 			if (ImGui::Button("Add Sphere"))
 			{
 				int index = 1;
@@ -464,16 +530,17 @@ namespace VenusEngine
 			static int cylinderSegments = 50;
 			static float cylinderHeight = 2.0f;
 			static float cylinderRadius = 1.0f;
-			// TODO: give each label a unique name
-			ImGui::Text("Side Segment Number:");
-			ImGui::InputInt("##Side Segment Number", &cylinderSegments, 1, 1,
+			ImGui::Text("Cylinder: (Segment/Height/Radius)");
+			ImGui::PushItemWidth((totalWidth - 2.0f * itemSpacing) / 3.0f);
+			ImGui::InputInt("##Cylinder Segment", &cylinderSegments, 0, 0,
 				ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Height:");
-			ImGui::InputFloat("##Height", &cylinderHeight, 0.05f, 0.05f,
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Cylinder Height", &cylinderHeight, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Radius:");
-			ImGui::InputFloat("##Radius", &cylinderRadius, 0.05f, 0.05f,
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Cylinder Radius", &cylinderRadius, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+			ImGui::PopItemWidth();
 			if (ImGui::Button("Add Cylinder"))
 			{
 				int index = 1;
@@ -496,15 +563,17 @@ namespace VenusEngine
 			static int coneSegments = 50;
 			static float coneHeight = 2.0f;
 			static float coneRadius = 1.0f;
-			ImGui::Text("Side Segment Number:");
-			ImGui::InputInt("##Side Segment Number", &coneSegments, 1, 1,
+			ImGui::Text("Cone: (Segment/Height/Radius)");
+			ImGui::PushItemWidth((totalWidth - 2.0f * itemSpacing) / 3.0f);
+			ImGui::InputInt("##Cone Segment", &coneSegments, 0, 0,
 				ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Height:");
-			ImGui::InputFloat("##Height", &coneHeight, 0.05f, 0.05f,
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Cone Height", &coneHeight, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Radius:");
-			ImGui::InputFloat("##Radius", &coneRadius, 0.05f, 0.05f,
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Cone Radius", &coneRadius, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
+			ImGui::PopItemWidth();
 			if (ImGui::Button("Add Cone"))
 			{
 				int index = 1;
@@ -528,17 +597,20 @@ namespace VenusEngine
 			static int torusMinorSegments = 50;
 			static float torusMajorRadius = 1.5f;
 			static float torusMinorRadius = 0.5f;
-			ImGui::Text("Major Segment Number:");
-			ImGui::InputInt("##Major Segment Number", &torusMajorSegments, 1, 1,
+			ImGui::Text("Torus: (Major Segment/Major Radius)");
+			ImGui::PushItemWidth((totalWidth - 1.0f * itemSpacing) / 2.0f);
+			ImGui::InputInt("##Torus Major Segment", &torusMajorSegments, 0, 0,
 				ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Minor Segment Number:");
-			ImGui::InputInt("##Minor Segment Number", &torusMinorSegments, 1, 1,
-				ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Major Radius:");
-			ImGui::InputFloat("##Major Radius", &torusMajorRadius, 0.05f, 0.05f,
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Torus Major Radius", &torusMajorRadius, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Minor Radius:");
-			ImGui::InputFloat("##Minor Radius", &torusMinorRadius, 0.05f, 0.05f,
+			ImGui::PopItemWidth();
+			ImGui::Text("       (Minor Segment/Minor Radius)");
+			ImGui::PushItemWidth((totalWidth - 1.0f * itemSpacing) / 2.0f);
+			ImGui::InputInt("##Torus Minor Segment", &torusMinorSegments, 0, 0,
+				ImGuiInputTextFlags_EnterReturnsTrue);
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Torus Minor Radius", &torusMinorRadius, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Torus"))
 			{
@@ -562,11 +634,12 @@ namespace VenusEngine
 
 			static float pyramidHeight = 2.0f;
 			static float pyramidRadius = 1.0f;
-			ImGui::Text("Height:");
-			ImGui::InputFloat("##Height", &pyramidHeight, 0.05f, 0.05f,
+			ImGui::Text("Pyramid: (Height/Radius)");
+			ImGui::PushItemWidth((totalWidth - 1.0f * itemSpacing) / 2.0f);
+			ImGui::InputFloat("##Pyramid Height", &pyramidHeight, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
-			ImGui::Text("Radius:");
-			ImGui::InputFloat("##Radius", &pyramidRadius, 0.05f, 0.05f,
+			ImGui::SameLine(0.0f, itemSpacing);
+			ImGui::InputFloat("##Pyramid Radius", &pyramidRadius, 0.0f, 0.0f,
 				"%.3f", ImGuiInputTextFlags_EnterReturnsTrue);
 			if (ImGui::Button("Add Pyramid"))
 			{
@@ -586,33 +659,9 @@ namespace VenusEngine
 				pyramid_mesh_ptr->prepareVao();
 				scene.add(name, pyramid_mesh_ptr);
 			}
-
-			// Display Meshes
-			ImGui::Text("All Meshes:");
-
+			
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
 
-			for (auto const& meshName : scene.allMeshNames())
-			{
-				// Use a different color for the active mesh
-				if (meshName == scene.activeMeshName())
-				{
-					ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s (Active)", meshName.c_str());
-				}
-				else
-				{
-					ImGui::Text("%-50s", meshName.c_str());
-					if (ImGui::IsItemClicked())
-					{
-						isMeshSelected = true;
-						selectedObjectName = meshName;
-					}
-				}
-			}
-
-			ImGui::Dummy(ImVec2(0.0f, 5.0f));
-
-			// Display Lights
 			if (ImGui::Button("Add Directional Light"))
 			{
 				int index = 1;
@@ -689,6 +738,34 @@ namespace VenusEngine
 				}
 			}
 
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+			// Display Meshes
+			ImGui::Text("All Meshes:");
+
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+			for (auto const& meshName : scene.allMeshNames())
+			{
+				// Use a different color for the active mesh
+				if (meshName == scene.activeMeshName())
+				{
+					ImGui::TextColored(ImVec4(1.0f, 1.0f, 0.0f, 1.0f), "%s (Active)", meshName.c_str());
+				}
+				else
+				{
+					ImGui::Text("%-50s", meshName.c_str());
+					if (ImGui::IsItemClicked())
+					{
+						isMeshSelected = true;
+						selectedObjectName = meshName;
+					}
+				}
+			}
+
+			ImGui::Dummy(ImVec2(0.0f, 5.0f));
+
+			// Display Lights
 			ImGui::Text("All Lights: (Maximum: 16)");
 
 			ImGui::Dummy(ImVec2(0.0f, 5.0f));
