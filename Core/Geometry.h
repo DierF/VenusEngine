@@ -408,6 +408,179 @@ namespace VenusEngine
 			return sphereTriangles;
 		}
 
+		/// \brief Creates a collection of triangles in a cylinder.
+		/// \param segments the number of segments of the cylinder.
+		/// \param height the height of the cylinder.
+		/// \param radius the radius of the cylinder.
+		/// \return A collection of triangles in a cylinder, centered on the origin.
+		static std::vector<Triangle> buildCylinder(int segments, float height, float radius)
+		{
+			std::vector<Triangle> triangles;
+			std::vector<Vec3> topVertices, bottomVertices;
+
+			// Generate top and bottom vertices
+			for (int i = 0; i < segments; ++i)
+			{
+				float theta = 2.0f * Math::PI * float(i) / float(segments);
+				float x = radius * cos(theta);
+				float z = radius * sin(theta);
+
+				topVertices.push_back(Vec3(x, height / 2.0f, z));
+				bottomVertices.push_back(Vec3(x, -height / 2.0f, z));
+			}
+
+			// Generate side faces
+			for (int i = 0; i < segments; ++i)
+			{
+				int next = (i + 1) % segments;
+
+				// Side triangle 1
+				triangles.push_back( {topVertices[i], bottomVertices[next], bottomVertices[i] });
+
+				// Side triangle 2
+				triangles.push_back( {topVertices[i], topVertices[next], bottomVertices[next] });
+			}
+
+			// Generate top and bottom caps
+			Vec3 topCenter(0.0f, height / 2.0f, 0.0f);
+			Vec3 bottomCenter(0.0f, -height / 2.0f, 0.0f);
+
+			for (int i = 0; i < segments; ++i)
+			{
+				int next = (i + 1) % segments;
+
+				// Top cap
+				triangles.push_back({ topCenter, topVertices[next], topVertices[i] });
+
+				// Bottom cap
+				triangles.push_back({ bottomCenter, bottomVertices[i], bottomVertices[next] });
+			}
+
+			return triangles;
+		}
+
+		/// \brief Creates a collection of triangles in a cone.
+		/// \param segments the number of segments of the cone.
+		/// \param height the height of the cone.
+		/// \param radius the radius of the cone.
+		/// \return A collection of triangles in a cone, centered on the origin.
+		static std::vector<Triangle> buildCone(int segments, float height, float radius)
+		{
+			std::vector<Triangle> triangles;
+			std::vector<Vec3> baseVertices;
+
+			Vec3 apex(0.0f, height / 2.0f, 0.0f);
+			Vec3 baseCenter(0.0f, -height / 2.0f, 0.0f);
+
+			// Generate base vertices
+			for (int i = 0; i < segments; ++i)
+			{
+				float theta = 2.0f * Math::PI * float(i) / float(segments);
+				float x = radius * cos(theta);
+				float z = radius * sin(theta);
+
+				baseVertices.push_back(Vec3(x, -height / 2.0f, z));
+			}
+
+			// Generate side faces
+			for (int i = 0; i < segments; ++i)
+			{
+				int next = (i + 1) % segments;
+
+				// Side triangle
+				triangles.push_back({ apex, baseVertices[next], baseVertices[i] });
+			}
+
+			// Generate base cap
+			for (int i = 0; i < segments; ++i)
+			{
+				int next = (i + 1) % segments;
+
+				// Base triangle
+				triangles.push_back({ baseCenter, baseVertices[i], baseVertices[next] });
+			}
+
+			return triangles;
+		}
+
+		/// \brief Creates a collection of triangles in a torus.
+		/// \param majorSegments the number of major segments of the torus.
+		/// \param minorSegments the height of minor segments the torus.
+		/// \param majorRadius the major radius of the torus.
+		/// \param minorRadius the minor radius of the torus.
+		/// \return A collection of triangles in a torus, centered on the origin.
+		static std::vector<Triangle> buildTorus(int majorSegments, int minorSegments, float majorRadius, float minorRadius)
+		{
+			std::vector<Triangle> triangles;
+
+			for (int i = 0; i < majorSegments; ++i)
+			{
+				float theta1 = 2.0f * Math::PI * float(i) / float(majorSegments);
+				float theta2 = 2.0f * Math::PI * float(i + 1) / float(majorSegments);
+
+				for (int j = 0; j < minorSegments; ++j)
+				{
+					float phi1 = 2.0f * Math::PI * float(j) / float(minorSegments);
+					float phi2 = 2.0f * Math::PI * float(j + 1) / float(minorSegments);
+
+					Vec3 p1((majorRadius + minorRadius * cos(phi1)) * cos(theta1),
+						minorRadius * sin(phi1),
+						(majorRadius + minorRadius * cos(phi1)) * sin(theta1));
+
+					Vec3 p2((majorRadius + minorRadius * cos(phi2)) * cos(theta1),
+						minorRadius * sin(phi2),
+						(majorRadius + minorRadius * cos(phi2)) * sin(theta1));
+
+					Vec3 p3((majorRadius + minorRadius * cos(phi2)) * cos(theta2),
+						minorRadius * sin(phi2),
+						(majorRadius + minorRadius * cos(phi2)) * sin(theta2));
+
+					Vec3 p4((majorRadius + minorRadius * cos(phi1)) * cos(theta2),
+						minorRadius * sin(phi1),
+						(majorRadius + minorRadius * cos(phi1)) * sin(theta2));
+
+					// Triangle 1
+					triangles.push_back(Triangle{ p1, p2, p3 });
+
+					// Triangle 2
+					triangles.push_back(Triangle{ p1, p3, p4 });
+				}
+			}
+
+			return triangles;
+		}
+
+		/// \brief Creates a collection of triangles in a pyramid.
+		/// \param baseSize the base size of the pyramid.
+		/// \param height the height of the pyramid.
+		/// \return A collection of triangles in a pyramid, centered on the origin.
+		static std::vector<Triangle> buildPyramid(float baseSize, float height)
+		{
+			std::vector<Triangle> triangles;
+
+			Vec3 apex(0.0f, height / 2.0f, 0.0f);
+			Vec3 baseVertices[4] =
+			{
+				Vec3(-baseSize / 2.0f, -height / 2.0f, -baseSize / 2.0f),
+				Vec3( baseSize / 2.0f, -height / 2.0f, -baseSize / 2.0f),
+				Vec3( baseSize / 2.0f, -height / 2.0f,  baseSize / 2.0f),
+				Vec3(-baseSize / 2.0f, -height / 2.0f,  baseSize / 2.0f)
+			};
+
+			// Side faces
+			for (int i = 0; i < 4; ++i)
+			{
+				int next = (i + 1) % 4;
+				triangles.push_back({ apex, baseVertices[next], baseVertices[i] });
+			}
+
+			// Base face
+			triangles.push_back({ baseVertices[0], baseVertices[1], baseVertices[2] });
+			triangles.push_back({ baseVertices[0], baseVertices[2], baseVertices[3] });
+
+			return triangles;
+		}
+
 	private:
 		// helper to generate subdivision for sphere
 		static std::vector<Triangle> subdivide(Vec3 const& v1, Vec3 const& v2, Vec3 const& v3, int depth)

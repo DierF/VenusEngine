@@ -419,9 +419,9 @@ namespace VenusEngine
 				scene.add(name, cube_mesh_ptr);
 			}
 
-			static int subdivisions = 0;
-			ImGui::Text("Sphere Subdivision Depth: ");
-			ImGui::InputInt("##Sphere Subdivision Depth", &subdivisions);
+			static int sphereSubdivisions = 0;
+			ImGui::Text("Sphere Subdivision Depth:");
+			ImGui::InputInt("##Sphere Subdivision Depth", &sphereSubdivisions);
 			if (ImGui::Button("Add Sphere"))
 			{
 				int index = 1;
@@ -431,7 +431,7 @@ namespace VenusEngine
 					++index;
 				}
 				name += std::to_string(index);
-				auto faces = Geometry::buildSphere(subdivisions);
+				auto faces = Geometry::buildSphere(sphereSubdivisions);
 				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
 					Geometry::computeFaceNormals(faces),
 					Geometry::generateRandomColors(faces));
@@ -439,6 +439,120 @@ namespace VenusEngine
 				sphere_mesh_ptr->addGeometry(geometry);
 				sphere_mesh_ptr->prepareVao();
 				scene.add(name, sphere_mesh_ptr);
+			}
+
+			static int cylinderSegments = 50;
+			static float cylinderHeight = 2.0f;
+			static float cylinderRadius = 1.0f;
+			// TODO: give each label a unique name
+			ImGui::Text("Side Segment Number:");
+			ImGui::InputInt("##Side Segment Number", &cylinderSegments);
+			ImGui::Text("Height:");
+			ImGui::InputFloat("##Height", &cylinderHeight);
+			ImGui::Text("Radius:");
+			ImGui::InputFloat("##Radius", &cylinderRadius);
+			if (ImGui::Button("Add Cylinder"))
+			{
+				int index = 1;
+				auto name = std::string("Cylinder");
+				while (scene.hasMesh(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				auto faces = Geometry::buildCylinder(cylinderSegments, cylinderHeight, cylinderRadius);
+				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
+					Geometry::computeFaceNormals(faces),
+					Geometry::generateRandomColors(faces));
+				std::shared_ptr<Mesh> cylinder_mesh_ptr(new Mesh());
+				cylinder_mesh_ptr->addGeometry(geometry);
+				cylinder_mesh_ptr->prepareVao();
+				scene.add(name, cylinder_mesh_ptr);
+			}
+
+			static int coneSegments = 50;
+			static float coneHeight = 2.0f;
+			static float coneRadius = 1.0f;
+			ImGui::Text("Side Segment Number:");
+			ImGui::InputInt("##Side Segment Number", &coneSegments);
+			ImGui::Text("Height:");
+			ImGui::InputFloat("##Height", &coneHeight);
+			ImGui::Text("Radius:");
+			ImGui::InputFloat("##Radius", &coneRadius);
+			if (ImGui::Button("Add Cone"))
+			{
+				int index = 1;
+				auto name = std::string("Cone");
+				while (scene.hasMesh(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				auto faces = Geometry::buildCone(coneSegments, coneHeight, coneRadius);
+				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
+					Geometry::computeFaceNormals(faces),
+					Geometry::generateRandomColors(faces));
+				std::shared_ptr<Mesh> cone_mesh_ptr(new Mesh());
+				cone_mesh_ptr->addGeometry(geometry);
+				cone_mesh_ptr->prepareVao();
+				scene.add(name, cone_mesh_ptr);
+			}
+
+			static int torusMajorSegments = 50;
+			static int torusMinorSegments = 50;
+			static float torusMajorRadius = 1.5f;
+			static float torusMinorRadius = 0.5f;
+			ImGui::Text("Major Segment Number:");
+			ImGui::InputInt("##Major Segment Number", &torusMajorSegments);
+			ImGui::Text("Minor Segment Number:");
+			ImGui::InputInt("##Minor Segment Number", &torusMinorSegments);
+			ImGui::Text("Major Radius:");
+			ImGui::InputFloat("##Major Radius", &torusMajorRadius);
+			ImGui::Text("Minor Radius:");
+			ImGui::InputFloat("##Minor Radius", &torusMinorRadius);
+			if (ImGui::Button("Add Torus"))
+			{
+				int index = 1;
+				auto name = std::string("Torus");
+				while (scene.hasMesh(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				auto faces = Geometry::buildTorus(torusMajorSegments, torusMinorSegments,
+					torusMajorRadius, torusMinorRadius);
+				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
+					Geometry::computeFaceNormals(faces),
+					Geometry::generateRandomColors(faces));
+				std::shared_ptr<Mesh> torus_mesh_ptr(new Mesh());
+				torus_mesh_ptr->addGeometry(geometry);
+				torus_mesh_ptr->prepareVao();
+				scene.add(name, torus_mesh_ptr);
+			}
+
+			static float pyramidHeight = 2.0f;
+			static float pyramidRadius = 1.0f;
+			ImGui::Text("Height:");
+			ImGui::InputFloat("##Height", &pyramidHeight);
+			ImGui::Text("Radius:");
+			ImGui::InputFloat("##Radius", &pyramidRadius);
+			if (ImGui::Button("Add Pyramid"))
+			{
+				int index = 1;
+				auto name = std::string("Pyramid");
+				while (scene.hasMesh(name + std::to_string(index)))
+				{
+					++index;
+				}
+				name += std::to_string(index);
+				auto faces = Geometry::buildPyramid(pyramidHeight, pyramidRadius);
+				auto geometry = Geometry::dataWithFaceNormalsANDColors(faces,
+					Geometry::computeFaceNormals(faces),
+					Geometry::generateRandomColors(faces));
+				std::shared_ptr<Mesh> pyramid_mesh_ptr(new Mesh());
+				pyramid_mesh_ptr->addGeometry(geometry);
+				pyramid_mesh_ptr->prepareVao();
+				scene.add(name, pyramid_mesh_ptr);
 			}
 
 			// Display Meshes
