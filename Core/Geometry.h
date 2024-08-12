@@ -401,7 +401,8 @@ namespace VenusEngine
 			std::vector<Triangle> sphereTriangles;
 			for (auto const& tri : triangles)
 			{
-				auto subdividedTriangles = subdivide(tri[0], tri[1], tri[2], subdivisions);
+				// Note: Fix triangle facing direction issues. Not a good fix.
+				std::vector<Triangle> subdividedTriangles = subdivisions % 2 == 0 ? subdivide(tri[0], tri[1], tri[2], subdivisions) : subdivide(tri[0], tri[2], tri[1], subdivisions);
 				sphereTriangles.insert(sphereTriangles.end(), subdividedTriangles.begin(), subdividedTriangles.end());
 			}
 
@@ -587,7 +588,7 @@ namespace VenusEngine
 		{
 			if (depth == 0)
 			{
-				return { {v1, v2, v3} }; // Swap v2 and v3 to change the winding order
+				return { { v1, v2, v3 } }; // Swap v2 and v3 to change the winding order
 			}
 			else
 			{

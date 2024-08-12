@@ -36,7 +36,7 @@ namespace VenusEngine
 
 			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-			m_window = glfwCreateWindow(m_width, m_height, "ParallelParallel", nullptr, nullptr);
+			m_window = glfwCreateWindow(m_width, m_height, "VenusEngine", nullptr, nullptr);
 			assert(m_window);
 
 			glfwMakeContextCurrent(m_window);
