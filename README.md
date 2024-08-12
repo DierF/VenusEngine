@@ -36,7 +36,7 @@ executable "VenusEngine" will be generated in folder "build"
 
 Layout:
 
-All Objects Window:
+1. All Objects Window:
 
 Add new mesh OR new light source.
 
@@ -44,15 +44,17 @@ Display all existing meshes and light sources.
 
 Left click existing object name to select.
 
-Active Object Window:
+2. Active Object Window:
 
 Display selected object information.
 
 Update selected object information.
 
-Viewport Window:
+3. Viewport Window:
 
-Display the view of the scene.
+Display the view of the scene from the editor camera.
+
+Left click on the scene to select/unselect mesh.
 
 Hold mouse right button while dragging mouse to move editor camera's direction.
 
